@@ -1,0 +1,80 @@
+# Kimiko: The Hackathon Pitch Guide
+
+Since you're building this for a hackathon, think of **Kimiko** as the "Credit Score for Privacy" on Solana. Here is exactly what the project is and why it matters.
+
+## 1. The Core Philosophy: "Private, not Hidden"
+It is impossible to make every transaction on Solana "private" because the blockchain is public by design. 
+
+Instead, Kimiko is about **Doxx-Proofing**. 
+- **The Problem**: Public history + Identity = No Financial Privacy.
+- **The Solution**: Public history + **Validated Anonymity** = Secure Privacy.
+
+Kimiko doesn't hide your transactions; it hides **YOU**. It proves that the owner of a wallet is a "Good User" without revealing who that owner is.
+
+## 8. Target Audiences: Why use Kimiko?
+
+### 1. The Individual User: "Personal Safety"
+- **The Why**: They want to browse DeFi and NFTs without worrying that a random person on Twitter can find their bank balance or home address.
+- **Value**: Peace of mind and protection from "Social Engineering" attacks.
+
+### 2. The DApp Developer: "Frictionless Onboarding"
+- **The Why**: They want to follow the law (anti-money laundering) but they know that asking for a passport (KYC) kills their conversion rate by 90%.
+- **Value**: They get a "Verified Safe" userbase without ever asking for a single document.
+
+### 3. The Institutional Treasury: "Strategic Secrecy"
+- **The Why**: Companies moving millions on Solana don't want their competitors to track their every move.
+- **Value**: They can prove they are compliant to their bank/regulators without leaking their secret trading strategies to the public.
+
+## 3. The 3 Core Pillars (What to do with the info):
+
+### A. The Privacy Score (The "Health Check")
+- **What it is**: A number from 0-100.
+- **What to do**: If your score is low (e.g., 30), you are at risk of being "doxxed" (identity revealed). You use this info to stop bad habits, like using the same wallet for everything.
+
+### B. The Compliance Tier (The "DeFi Passport")
+- **What it is**: Labels like "LOW RISK" or "HIGH RISK".
+- **What to do**: This is the "Killer Feature" for Hackathons. Imagine a DeFi app that only allows "LOW RISK" wallets to trade. You prove you aren't a money launderer or a hacker **without** showing your passport. 
+
+### C. The Leakage Map (The "Detective Tool")
+- **What it is**: A visual graph of your connections.
+- **What to do**: It shows "Clustering". If 5 of your wallets all talk to the same 1 wallet, they are "clustered". You use this map to see where you need to break the chain.
+
+## 4. How to Pitch it to Judges:
+"Judges, the biggest problem in Crypto right now is the trade-off between **Privacy** and **Regulation**. Governments want KYC, but users want Anonymity. Kimiko solves this by creating **Behavioral Compliance**. We don't care WHO you are; we care HOW you behave. If your behavior is low-risk, Kimiko gives you a green light to use DeFi, while keeping your identity private."
+
+## 7. Technical Deep Dive (Points 2 & 3)
+
+### How Point 2 Works: "The Path to Fix It" (Recommendations)
+The system doesn't just guess; it uses a **Vector Mapping System**.
+1. **Detection**: Our [classifier.ts](file:///d:/Kimiko/src/lib/analysis/classifier.ts) looks for specific "Leakage Vectors" (like `CEX_EXPOSURE`).
+2. **Mapping**: The [recommender.ts](file:///d:/Kimiko/src/lib/analysis/recommender.ts) script takes those vectors and maps them to human-readable solutions.
+3. **Simulated Gain**: For every fix, we calculate an `estimatedImprovement`. This gamifies privacy, encouraging users to "level up" their score by following the advice.
+
+### How Point 3 Works: "The Reputation" (Compliance Tiers)
+This is where **Kimiko** gets really smart. Instead of asking for an ID, we use **Risk Heuristics**.
+1. **Severity Check**: We check if any detected leakage is `CRITICAL` (e.g., direct link to a known hacker or a blacklisted bridge).
+2. **Behavioral Scoring**: We combine your [PrivacyScore](file:///d:/Kimiko/src/components/PrivacyScore.tsx#9-90) with your transaction frequency.
+3. **Classification**: 
+   - **LOW_RISK**: High Privacy Score (70+) + No high-severity leaks.
+   - **HIGH_RISK**: Direct CEX links + Low Privacy Score (< 30) OR any Critical leak.
+   - **MEDIUM_RISK**: Everything in between.
+
+**The Key Innovation**: We prove a user is "Safe" based on their **Action History**, not their **Identity**.
+## 9. The "HOW" Deep-Dive (Answering the Judge's Questions)
+
+### Q1: How does Kimiko keep me "Safe"?
+**Safety in Crypto = Unlinkability.** 
+- **The Mechanism**: Kimiko parses your transaction history to find "Dirty Links" (e.g., a direct Bored Ape purchase from a Binance deposit).
+- **The Safety Action**: It tells you to use a **"Privacy Proxy"** or to **"Rotate Wallets."** By following this, your net worth becomes invisible to random people on the internet, which protects you from being targeted for hacks or physical theft.
+
+### Q2: How do we know an address is "Safe"?
+We use **Multi-Factor Behavioral Analysis**:
+1. **Negative Filter**: We check against a database of known hackers, scammers, and sanctioned addresses. If you have touched them, you are "Low Score."
+2. **Positive Behavior**: We look for "Productive Interaction." Does the wallet stake SOL? Does it use Jupiter? Does it hold reputable NFTs? These are signs of a "Regular User."
+3. **Graph Proximity**: We look at your neighbors. If you send money to someone who sends money to a hacker, your score drops. This is called **"Contamination Tracking."**
+
+### Q3: How do Companies prove they are legal while staying private?
+This is the **"Compliance Paradox"** solved.
+- **The Mechanism**: Kimiko generates a **"Verified Compliance Report."**
+- **How it stays Private**: The report only shows the **Result** (e.g., "Pass: No suspicious links found") but **Hides the Details** (e.g., "Trade #45: Bought $1M of Token X").
+- **The Result**: The government/bank gets the "Green Light" they need to follow the law, while the company keeps its secret "Money Making Strategies" 100% private. 

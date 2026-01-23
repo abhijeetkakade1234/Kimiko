@@ -1,0 +1,719 @@
+# Implementation Plan: Kimiko - Solana Privacy Toolkit
+
+## Executive Summary
+
+**Kimiko** solves the "Privacy vs. Compliance" paradox on Solana. In a world where every transaction is public, users are forced to choose between being fully exposed or appearing suspicious. 
+
+Kimiko provides a **Behavior-Based Compliance Layer** that analyzes wallet privacy exposure, assigns risk tiers, and provides actionable recommendations—enabling privacy without sacrificing legitimacy.
+
+---
+
+## Tech Stack (Zero Cost)
+
+### Frontend & Backend
+- **Framework:** Next.js 14+ (App Router)
+- **UI Library:** React 19
+- **Styling:** TailwindCSS + shadcn/ui components
+- **Visualizations:** D3.js + Recharts
+- **Deployment:** Vercel (Free tier)
+
+### Data & Analysis
+- **Blockchain Access:** @solana/web3.js + Helius API (100k free credits/month)
+- **Graph Analysis:** Custom TypeScript implementation
+- **Caching:** Vercel KV (optional, free tier) or in-memory
+- **Database:** JSON files (MVP) → Supabase (when needed)
+
+### Developer Tools
+- **SDK:** TypeScript package (@solana-privacy-toolkit/sdk)
+- **API Documentation:** Auto-generated from OpenAPI spec
+- **Package Manager:** pnpm (faster, more efficient)
+
+---
+
+## Architecture Overview
+
+```mermaid
+graph TB
+    UI[Web Interface<br/>Next.js + React]
+    API[API Routes<br/>/app/api/*]
+    Engine[Analysis Engine<br/>TypeScript]
+    Scorer[Privacy Scorer<br/>Algorithm]
+    Classifier[Leakage Classifier]
+    Recommender[Recommendation Engine]
+    SDK[TypeScript SDK<br/>npm package]
+    
+    Solana[Solana RPC<br/>Helius API]
+    Labels[(Known Addresses<br/>JSON Database)]
+    
+    UI --> API
+    SDK --> API
+    API --> Engine
+    Engine --> Solana
+    Engine --> Labels
+    Engine --> Scorer
+    Engine --> Classifier
+    Engine --> Recommender
+    
+    Scorer --> Classifier
+    Classifier --> Recommender
+```
+
+---
+
+## Project Phases
+
+### 🎯 Phase 1: Foundation (MVP for Hackathon)
+**Timeline:** Week 1-2  
+**Goal:** Working prototype with core privacy analysis
+
+#### Milestones:
+1. ✅ Project setup and architecture
+2. ✅ Solana wallet data fetching
+3. ✅ Basic privacy scoring
+4. ✅ Simple web interface
+5. ✅ Deployment to Vercel
+
+---
+
+### 🎯 Phase 2: Intelligence & Visualization
+**Timeline:** Week 3-4  
+**Goal:** Advanced analysis and beautiful visualizations
+
+#### Milestones:
+1. ✅ Leakage classification system
+2. ✅ Transaction graph visualization
+3. ✅ Compliance tiering logic
+4. ✅ Recommendation engine
+5. ✅ Enhanced UI with charts
+
+---
+
+### 🎯 Phase 3: Developer Platform
+**Timeline:** Week 5-6  
+**Goal:** REST API and TypeScript SDK
+
+#### Milestones:
+1. ✅ Public REST API
+2. ✅ TypeScript SDK package
+3. ✅ API documentation
+4. ✅ Usage examples
+5. ✅ npm publish
+
+---
+
+### 🎯 Phase 4: Advanced Features
+**Timeline:** Week 7-8  
+**Goal:** Cross-chain, caching, enterprise features
+
+#### Milestones:
+1. ✅ Cross-chain bridge detection
+2. ✅ Historical tracking
+3. ✅ Batch analysis
+4. ✅ Export reports (PDF/JSON)
+5. ✅ Enterprise dashboard
+
+---
+
+## Phase 1: Detailed Breakdown
+
+### File Structure
+
+```
+solana-privacy-toolkit/
+├── app/
+│   ├── (marketing)/
+│   │   ├── page.tsx                 # Landing page
+│   │   ├── docs/
+│   │   │   └── page.tsx             # Documentation
+│   │   └── about/
+│   │       └── page.tsx             # About/Vision
+│   ├── analyze/
+│   │   └── page.tsx                 # Main analysis interface
+│   ├── api/
+│   │   ├── analyze/
+│   │   │   └── route.ts             # POST /api/analyze
+│   │   ├── score/
+│   │   │   └── route.ts             # GET /api/score/:wallet
+│   │   └── health/
+│   │       └── route.ts             # GET /api/health
+│   ├── layout.tsx                   # Root layout
+│   └── globals.css                  # Global styles
+├── components/
+│   ├── ui/                          # shadcn components
+│   ├── WalletInput.tsx              # Wallet address input
+│   ├── PrivacyScore.tsx             # Score display component
+│   ├── LeakageMap.tsx               # Visualization
+│   ├── RecommendationList.tsx       # Recommendations
+│   └── TransactionGraph.tsx         # Graph visualization
+├── lib/
+│   ├── solana/
+│   │   ├── client.ts                # Solana connection setup
+│   │   ├── fetcher.ts               # Transaction fetcher
+│   │   └── parser.ts                # Transaction parser
+│   ├── analysis/
+│   │   ├── scorer.ts                # Privacy scoring logic
+│   │   ├── classifier.ts            # Leakage classification
+│   │   ├── compliance.ts            # Compliance tiering
+│   │   └── recommender.ts           # Recommendation engine
+│   ├── graph/
+│   │   ├── builder.ts               # Transaction graph builder
+│   │   └── analyzer.ts              # Graph analysis utilities
+│   ├── data/
+│   │   ├── known-addresses.json     # Labeled addresses database
+│   │   └── program-registry.json    # Known program classifications
+│   ├── utils/
+│   │   ├── cache.ts                 # Simple caching layer
+│   │   └── rate-limiter.ts          # API rate limiting
+│   └── types.ts                     # TypeScript type definitions
+├── sdk/
+│   ├── src/
+│   │   ├── client.ts                # SDK main client
+│   │   ├── types.ts                 # Exported types
+│   │   └── index.ts                 # Package entry
+│   ├── package.json                 # SDK package config
+│   └── tsconfig.json
+├── public/
+│   ├── images/
+│   └── docs/
+├── tests/
+│   ├── unit/
+│   └── integration/
+├── .env.local.example               # Environment variables template
+├── package.json
+├── tsconfig.json
+├── tailwind.config.ts
+└── README.md
+```
+
+---
+
+## Core Data Types
+
+```typescript
+// lib/types.ts
+
+export interface WalletAnalysis {
+  wallet: string;
+  privacyScore: number;
+  complianceTier: 'LOW_RISK' | 'MEDIUM_RISK' | 'HIGH_RISK';
+  leakageVectors: LeakageVector[];
+  recommendations: Recommendation[];
+  metadata: AnalysisMetadata;
+}
+
+export interface LeakageVector {
+  category: LeakageCategory;
+  severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  score: number;
+  description: string;
+  evidence: Evidence[];
+}
+
+export type LeakageCategory = 
+  | 'CEX_EXPOSURE'
+  | 'ADDRESS_REUSE'
+  | 'CLUSTERING_RISK'
+  | 'TEMPORAL_PATTERN'
+  | 'SOCIAL_GRAPH'
+  | 'BRIDGE_CORRELATION'
+  | 'NFT_IDENTITY';
+
+export interface Evidence {
+  type: string;
+  value: string;
+  confidence: number;
+  timestamp?: number;
+}
+
+export interface Recommendation {
+  priority: 'LOW' | 'MEDIUM' | 'HIGH';
+  category: string;
+  title: string;
+  description: string;
+  actionable: boolean;
+  estimatedImprovement: number;
+}
+
+export interface AnalysisMetadata {
+  analyzedAt: number;
+  transactionCount: number;
+  accountAge: number;
+  dataSource: 'helius' | 'public-rpc';
+  processingTime: number;
+}
+
+export interface TransactionNode {
+  signature: string;
+  timestamp: number;
+  slot: number;
+  type: 'transfer' | 'swap' | 'nft' | 'program' | 'unknown';
+  counterparties: string[];
+  value?: number;
+  programs: string[];
+}
+```
+
+---
+
+## API Specifications
+
+### POST /api/analyze
+
+**Request:**
+```json
+{
+  "wallet": "DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK",
+  "options": {
+    "depth": "standard",
+    "includeGraph": true,
+    "cacheResults": true
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "wallet": "DYw8jCTfwHNRJhhmFcbXvVDTqWMEVFBX6ZKUmG5CNSKK",
+    "privacyScore": 67,
+    "complianceTier": "MEDIUM_RISK",
+    "leakageVectors": [
+      {
+        "category": "CEX_EXPOSURE",
+        "severity": "HIGH",
+        "score": 25,
+        "description": "Direct transactions with known CEX addresses detected",
+        "evidence": [...]
+      }
+    ],
+    "recommendations": [...],
+    "metadata": {...}
+  }
+}
+```
+
+### GET /api/score/:wallet
+
+**Response:**
+```json
+{
+  "wallet": "...",
+  "privacyScore": 67,
+  "complianceTier": "MEDIUM_RISK",
+  "lastAnalyzed": 1706342400000
+}
+```
+
+---
+
+## Privacy Scoring Algorithm
+
+### Weighted Leakage Model
+
+```typescript
+const LEAKAGE_WEIGHTS = {
+  CEX_EXPOSURE: 25,          // Highest risk
+  LABELED_INTERACTION: 20,   // High risk
+  CLUSTERING_RISK: 15,       // Medium-high risk
+  BRIDGE_CORRELATION: 15,    // Medium-high risk
+  TEMPORAL_PATTERN: 10,      // Medium risk
+  ADDRESS_REUSE: 10,         // Medium risk
+  NFT_IDENTITY: 5            // Lower risk
+};
+
+function calculatePrivacyScore(vectors: LeakageVector[]): number {
+  const totalPenalty = vectors.reduce((sum, vector) => {
+    return sum + (vector.score * LEAKAGE_WEIGHTS[vector.category] / 100);
+  }, 0);
+  
+  return Math.max(0, Math.min(100, 100 - totalPenalty));
+}
+```
+
+### Detection Heuristics
+
+#### 1. CEX Exposure Detection
+```typescript
+function detectCEXExposure(transactions: Transaction[]): LeakageVector | null {
+  const knownCEXAddresses = loadKnownAddresses('exchanges');
+  const cexInteractions = transactions.filter(tx => 
+    tx.counterparties.some(addr => knownCEXAddresses.has(addr))
+  );
+  
+  if (cexInteractions.length === 0) return null;
+  
+  const severity = cexInteractions.length > 5 ? 'CRITICAL' : 
+                   cexInteractions.length > 2 ? 'HIGH' : 'MEDIUM';
+  
+  return {
+    category: 'CEX_EXPOSURE',
+    severity,
+    score: Math.min(100, cexInteractions.length * 20),
+    description: `${cexInteractions.length} transactions with known CEX addresses`,
+    evidence: cexInteractions.map(tx => ({
+      type: 'transaction',
+      value: tx.signature,
+      confidence: 1.0
+    }))
+  };
+}
+```
+
+#### 2. Address Reuse Detection
+```typescript
+function detectAddressReuse(transactions: Transaction[]): LeakageVector | null {
+  const counterpartyFrequency = new Map<string, number>();
+  
+  transactions.forEach(tx => {
+    tx.counterparties.forEach(addr => {
+      counterpartyFrequency.set(addr, (counterpartyFrequency.get(addr) || 0) + 1);
+    });
+  });
+  
+  const reusedAddresses = Array.from(counterpartyFrequency.entries())
+    .filter(([_, count]) => count > 3);
+  
+  if (reusedAddresses.length === 0) return null;
+  
+  return {
+    category: 'ADDRESS_REUSE',
+    severity: 'MEDIUM',
+    score: Math.min(100, reusedAddresses.length * 10),
+    description: `${reusedAddresses.length} addresses used multiple times`,
+    evidence: [...]
+  };
+}
+```
+
+#### 3. Temporal Pattern Analysis
+```typescript
+function detectTemporalPatterns(transactions: Transaction[]): LeakageVector | null {
+  const timestamps = transactions.map(tx => tx.timestamp).sort();
+  const intervals = [];
+  
+  for (let i = 1; i < timestamps.length; i++) {
+    intervals.push(timestamps[i] - timestamps[i-1]);
+  }
+  
+  // Calculate coefficient of variation
+  const mean = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+  const variance = intervals.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / intervals.length;
+  const cv = Math.sqrt(variance) / mean;
+  
+  // Low CV indicates predictable patterns
+  if (cv < 0.5) {
+    return {
+      category: 'TEMPORAL_PATTERN',
+      severity: 'MEDIUM',
+      score: Math.min(100, (1 - cv) * 80),
+      description: 'Predictable transaction timing detected',
+      evidence: [...]
+    };
+  }
+  
+  return null;
+}
+```
+
+---
+
+## Compliance Tiering Logic
+
+```typescript
+function determineComplianceTier(
+  privacyScore: number,
+  vectors: LeakageVector[]
+): ComplianceTier {
+  // High-risk indicators
+  const hasCEXExposure = vectors.some(v => v.category === 'CEX_EXPOSURE');
+  const hasCriticalVector = vectors.some(v => v.severity === 'CRITICAL');
+  
+  if (hasCriticalVector || (hasCEXExposure && privacyScore < 40)) {
+    return 'HIGH_RISK';
+  }
+  
+  if (privacyScore >= 70) {
+    return 'LOW_RISK';
+  }
+  
+  return 'MEDIUM_RISK';
+}
+```
+
+---
+
+## Recommendation Engine
+
+```typescript
+function generateRecommendations(
+  vectors: LeakageVector[],
+  walletData: WalletData
+): Recommendation[] {
+  const recommendations: Recommendation[] = [];
+  
+  // CEX exposure recommendations
+  if (vectors.some(v => v.category === 'CEX_EXPOSURE')) {
+    recommendations.push({
+      priority: 'HIGH',
+      category: 'Privacy Enhancement',
+      title: 'Reduce CEX Direct Interactions',
+      description: 'Use intermediary wallets when depositing/withdrawing from exchanges',
+      actionable: true,
+      estimatedImprovement: 20
+    });
+  }
+  
+  // Address reuse recommendations
+  if (vectors.some(v => v.category === 'ADDRESS_REUSE')) {
+    recommendations.push({
+      priority: 'MEDIUM',
+      category: 'Privacy Enhancement',
+      title: 'Rotate Wallet Addresses',
+      description: 'Create new wallets for different use cases (trading, NFTs, DeFi)',
+      actionable: true,
+      estimatedImprovement: 15
+    });
+  }
+  
+  // Temporal pattern recommendations
+  if (vectors.some(v => v.category === 'TEMPORAL_PATTERN')) {
+    recommendations.push({
+      priority: 'LOW',
+      category: 'Behavior Obfuscation',
+      title: 'Randomize Transaction Timing',
+      description: 'Avoid predictable transaction patterns',
+      actionable: true,
+      estimatedImprovement: 10
+    });
+  }
+  
+  return recommendations.sort((a, b) => {
+    const priorityOrder = { HIGH: 3, MEDIUM: 2, LOW: 1 };
+    return priorityOrder[b.priority] - priorityOrder[a.priority];
+  });
+}
+```
+
+---
+
+## Known Addresses Database
+
+### Initial Seed Data Structure
+
+```json
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-21T00:00:00Z",
+  "categories": {
+    "exchanges": [
+      {
+        "address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+        "label": "Binance Hot Wallet",
+        "confidence": 1.0,
+        "source": "public_label"
+      },
+      {
+        "address": "H8UekPGwePSmQ3ttuYGPU1szyFfjZR4N53rymSFwpLPm",
+        "label": "Coinbase Deposit",
+        "confidence": 0.95,
+        "source": "community_verified"
+      }
+    ],
+    "bridges": [
+      {
+        "address": "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb",
+        "label": "Wormhole Bridge",
+        "confidence": 1.0,
+        "source": "official"
+      }
+    ],
+    "defi_protocols": [
+      {
+        "address": "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",
+        "label": "Jupiter Aggregator",
+        "confidence": 1.0,
+        "source": "official"
+      }
+    ]
+  }
+}
+```
+
+---
+
+## Environment Variables
+
+```bash
+# .env.local.example
+
+# Solana RPC Configuration
+NEXT_PUBLIC_SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
+HELIUS_API_KEY=your_helius_api_key_here
+
+# API Configuration
+NEXT_PUBLIC_API_URL=http://localhost:3000
+API_RATE_LIMIT=100
+
+# Optional: Caching
+ENABLE_CACHE=true
+CACHE_TTL=3600
+
+# Optional: Analytics
+NEXT_PUBLIC_ANALYTICS_ID=
+
+# Development
+NODE_ENV=development
+```
+
+---
+
+## Testing Strategy
+
+### Unit Tests
+- Privacy scoring algorithm
+- Leakage detection heuristics
+- Recommendation generation
+- Data parsing utilities
+
+### Integration Tests
+- API endpoint responses
+- Solana RPC interactions
+- End-to-end wallet analysis
+
+### Test Wallets
+```typescript
+// Known test cases for validation
+const TEST_WALLETS = {
+  HIGH_PRIVACY: 'Example1...', // Expected score: 85-95
+  MEDIUM_PRIVACY: 'Example2...', // Expected score: 50-70
+  CEX_LINKED: 'Example3...', // Expected score: 20-40
+};
+```
+
+---
+
+## Deployment Checklist
+
+### Pre-deployment
+- [ ] Environment variables configured
+- [ ] API rate limiting implemented
+- [ ] Error handling in place
+- [ ] Loading states for UI
+- [ ] Mobile responsiveness tested
+
+### Vercel Setup
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Link project
+vercel link
+
+# Deploy
+vercel --prod
+```
+
+### Post-deployment
+- [ ] Test all API endpoints
+- [ ] Verify RPC connectivity
+- [ ] Monitor error rates
+- [ ] Check performance metrics
+
+---
+
+## Success Metrics
+
+### Phase 1 (MVP)
+- ✅ Analyze wallet in < 10 seconds
+- ✅ Display privacy score accurately
+- ✅ Generate 3+ actionable recommendations
+- ✅ Mobile-friendly UI
+- ✅ Zero crashes on common wallets
+
+### Phase 2 (Intelligence)
+- ✅ Detect 5+ leakage categories
+- ✅ Visualize transaction graph
+- ✅ 90%+ uptime
+
+### Phase 3 (Developer Platform)
+- ✅ API response time < 2s
+- ✅ SDK published to npm
+- ✅ 10+ example use cases documented
+
+---
+
+## Timeline Summary
+
+| Phase | Duration | Key Deliverables |
+|-------|----------|------------------|
+| Phase 1 | 1-2 weeks | Working MVP, deployed to Vercel |
+| Phase 2 | 1-2 weeks | Advanced analysis, visualizations |
+| Phase 3 | 1-2 weeks | Public API, SDK, documentation |
+| Phase 4 | 1-2 weeks | Enterprise features, optimization |
+
+**Total estimated time:** 4-8 weeks for full platform
+
+---
+
+## Risk Mitigation
+
+| Risk | Mitigation |
+|------|------------|
+| RPC rate limits | Use Helius free tier + implement caching |
+| Slow analysis | Process incrementally, show progress indicators |
+| Inaccurate scoring | Start conservative, refine with feedback |
+| Incomplete address labels | Start with seed data, crowdsource additions |
+| API abuse | Implement rate limiting from day 1 |
+
+---
+
+## Future Enhancements (Post-MVP)
+
+1. **Historical Tracking**
+   - Track privacy score changes over time
+   - Alert on sudden exposure increases
+
+2. **Cross-Chain Analysis**
+   - Detect bridge transactions across chains
+   - Multi-chain identity correlation
+
+3. **Privacy-Preserving Recommendations**
+   - Suggest specific privacy protocols (Elusiv, Light Protocol)
+   - Route optimization for private transfers
+
+4. **Enterprise Features**
+   - Batch wallet analysis
+   - Custom compliance rule engines
+   - White-label solutions
+
+5. **Community Features**
+   - Privacy score leaderboard (anonymous)
+   - Community-contributed address labels
+   - Privacy bounties
+
+---
+
+## Questions to Resolve
+
+> [!IMPORTANT]
+> **Before Phase 1 Implementation:**
+> 1. Should we include a "demo mode" with pre-analyzed example wallets?
+> 2. Do we want user accounts (wallet connect) or keep it fully anonymous?
+> 3. Should analysis results be cached/stored, or always fresh?
+> 4. What level of technical detail should the UI expose to non-technical users?
+
+---
+
+## Getting Started
+
+Once approved, we'll begin with:
+
+1. **Day 1:** Project scaffolding + dependency installation
+2. **Day 2-3:** Solana integration + data fetching
+3. **Day 4-5:** Privacy scoring engine
+4. **Day 6-7:** Basic UI implementation
+5. **Day 8:** Testing + deployment
+
+**Ready to build?** 🚀
