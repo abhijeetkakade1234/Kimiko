@@ -1,59 +1,167 @@
 @import "tailwindcss";
 
 :root {
-  --background: #050505;
+  --background: #020204;
   --foreground: #ffffff;
   --primary: #9945FF;
   --secondary: #14F195;
   --accent: #ebff00;
-  --glass: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass: rgba(255, 255, 255, 0.02);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --shimmer: linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      rgba(255, 255, 255, 0) 100%);
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Outfit', 'Inter', sans-serif;
   overflow-x: hidden;
+  background-attachment: fixed;
 }
 
 @layer utilities {
   .glass {
     background: var(--glass);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--glass-border);
-    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
   }
 
   .text-gradient {
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    background: linear-gradient(135deg, #fff 0%, var(--primary) 50%, var(--secondary) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 30px rgba(153, 69, 255, 0.3));
   }
 
   .bg-gradient-mesh {
     background-image:
-      radial-gradient(at 0% 0%, rgba(153, 69, 255, 0.15) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(20, 241, 149, 0.15) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(153, 69, 255, 0.1) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(20, 241, 149, 0.1) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(153, 69, 255, 0.12) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(20, 241, 149, 0.12) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(153, 69, 255, 0.08) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(20, 241, 149, 0.08) 0px, transparent 50%);
+    background-color: var(--background);
+  }
+
+  .shimmer-btn {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--shimmer);
+    transform: translateX(-100%);
+    animation: shimmer 3s infinite;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
   }
 }
 
 .animate-pulse-slow {
-  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes pulse {
 
   0%,
   100% {
-    opacity: 0.1;
+    opacity: 0.15;
+    transform: scale(1) rotate(0deg);
   }
 
   50% {
-    opacity: 0.3;
+    opacity: 0.4;
+    transform: scale(1.1) rotate(5deg);
   }
+}
+
+.drop-shadow-glow {
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.4));
+}
+
+.vertical-text {
+  writing-mode: vertical-rl;
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.bg-scanlines {
+  background: linear-gradient(to bottom,
+      transparent 50%,
+      rgba(0, 0, 0, 0.5) 50%);
+  background-size: 100% 4px;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0.1;
+}
+
+.hud-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  pointer-events: none;
+}
+
+.hud-corner-tl {
+  top: 40px;
+  left: 40px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.hud-corner-tr {
+  top: 40px;
+  right: 40px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.hud-corner-bl {
+  bottom: 40px;
+  left: 40px;
+  border-right: none;
+  border-top: none;
+}
+
+.hud-corner-br {
+  bottom: 40px;
+  right: 40px;
+  border-left: none;
+  border-top: none;
+}
+
+.bg-katakana-floor {
+  mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+}
+
+.bg-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.bg-seigaiha {
+  background-image: radial-gradient(circle at 100% 150%, transparent 24%, white 25%, white 28%, transparent 29%, transparent 36%, white 36%, white 40%, transparent 40%, transparent);
+  background-size: 40px 20px;
+  background-repeat: repeat;
+  opacity: 0.03;
 }

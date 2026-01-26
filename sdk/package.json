@@ -1,0 +1,29 @@
+{
+    "name": "@solana-privacy-toolkit/sdk",
+    "version": "0.1.0",
+    "description": "TypeScript SDK for Kimiko - Solana Privacy & Compliance Layer",
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsup src/index.ts --format cjs,esm --dts",
+        "dev": "tsup src/index.ts --format cjs,esm --watch --dts",
+        "lint": "eslint src/**/*.ts"
+    },
+    "keywords": [
+        "solana",
+        "privacy",
+        "compliance",
+        "blockchain",
+        "sdk"
+    ],
+    "author": "Antigravity",
+    "license": "MIT",
+    "devDependencies": {
+        "tsup": "^8.0.1",
+        "typescript": "^5.3.3"
+    }
+}

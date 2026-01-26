@@ -11,8 +11,8 @@ export const generateRecommendations = (
         recommendations.push({
             priority: 'HIGH',
             category: 'Privacy',
-            title: 'Minimize Direct CEX Links',
-            description: 'Use intermediary wallets or privacy protocols when moving funds to/from exchanges to obscure the direct link to your identity.',
+            title: 'Hide your exchange links',
+            description: 'Your wallet is directly connected to a central exchange (like Binance). This means your real-world identity is potentially compromised. Use a "cleaning" wallet in between.',
             actionable: true,
             estimatedImprovement: 25
         });
@@ -22,8 +22,8 @@ export const generateRecommendations = (
         recommendations.push({
             priority: 'MEDIUM',
             category: 'Anonymity',
-            title: 'Rotate Wallet Addresses',
-            description: 'Create new addresses for different activities (NFTs, Trading, Personal) to prevent cross-account clustering and profiling.',
+            title: 'Don\'t use the same wallet twice',
+            description: 'Using one wallet for everything (NFTs, Trading, Shopping) makes it easy to build a profile of your life. Create a fresh wallet for new activities.',
             actionable: true,
             estimatedImprovement: 15
         });
@@ -33,22 +33,10 @@ export const generateRecommendations = (
         recommendations.push({
             priority: 'LOW',
             category: 'Behavior',
-            title: 'Randomize Transaction Timing',
-            description: 'Avoid executing transactions at predictable intervals or specific times of day to prevent temporal fingerprinting.',
+            title: 'Mix up your timing',
+            description: 'Sending money at the exact same time every day is a "digital fingerprint". Randomize your transaction times to stay under the radar.',
             actionable: true,
             estimatedImprovement: 10
-        });
-    }
-
-    // Default recommendation if score is low but no specific vectors caught (unlikely with current setup)
-    if (recommendations.length === 0) {
-        recommendations.push({
-            priority: 'LOW',
-            category: 'General',
-            title: 'Perform Small Trial Transactions',
-            description: 'When using new protocols, use small amounts and a fresh wallet to assess privacy leakage first.',
-            actionable: true,
-            estimatedImprovement: 5
         });
     }
 
@@ -56,8 +44,8 @@ export const generateRecommendations = (
         recommendations.push({
             priority: 'MEDIUM',
             category: 'Anonymity',
-            title: 'Break Address Clusters',
-            description: 'Your wallet is linked to too many distinct personal addresses. Use a fresh "burner" wallet for interactions with new parties.',
+            title: 'Untangle your addresses',
+            description: 'Your different wallets are "talking" to each other too much. This creates a cluster that reveals they all belong to you.',
             actionable: true,
             estimatedImprovement: 20
         });
@@ -67,10 +55,21 @@ export const generateRecommendations = (
         recommendations.push({
             priority: 'LOW',
             category: 'Privacy',
-            title: 'Obscure Social Links',
-            description: 'Repeated interactions with the same wallets suggest a social connection. Avoid sending direct transfers to friends/colleagues from your main treasury.',
+            title: 'Hide your "Friend Graph"',
+            description: 'Directly sending SOL to the same people over and over reveals your social circle. Use a temporary wallet for personal transfers.',
             actionable: true,
             estimatedImprovement: 10
+        });
+    }
+
+    if (categories.has('MIXER_CORRELATION')) {
+        recommendations.push({
+            priority: 'HIGH',
+            category: 'Privacy',
+            title: 'Add delays between transfers',
+            description: 'You are moving money too quickly through privacy tools. This creates a "time link" that makes the tool useless. Wait at least 24 hours between deposit and withdrawal.',
+            actionable: true,
+            estimatedImprovement: 40
         });
     }
 
@@ -78,8 +77,8 @@ export const generateRecommendations = (
         recommendations.push({
             priority: 'HIGH',
             category: 'Cross-Chain',
-            title: 'Use Privacy-Focused Bridges',
-            description: 'Known bridge interactions are easy to track across chains. Consider using privacy-preserving protocols or decentralized relayers.',
+            title: 'Watch out for "Bridge Leaks"',
+            description: 'Moving money between blockchains (like Solana to Ethereum) is highly trackable. Use specialized tools that hide these crossover links.',
             actionable: true,
             estimatedImprovement: 30
         });

@@ -14,7 +14,7 @@ export default function RecommendationsList({ recommendations }: Recommendations
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4 }}
-            className="glass p-8 h-full"
+            className="glass p-8"
         >
             <div className="flex items-center gap-3 mb-8">
                 <div className="w-10 h-10 rounded-xl bg-accent/20 text-accent flex items-center justify-center">
@@ -34,8 +34,8 @@ export default function RecommendationsList({ recommendations }: Recommendations
                     >
                         <div className="flex items-start justify-between mb-3">
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${rec.priority === 'HIGH' ? 'bg-primary/20 text-primary' :
-                                    rec.priority === 'MEDIUM' ? 'bg-secondary/20 text-secondary' :
-                                        'bg-white/10 text-white/40'
+                                rec.priority === 'MEDIUM' ? 'bg-secondary/20 text-secondary' :
+                                    'bg-white/10 text-white/40'
                                 }`}>
                                 {rec.priority} Priority
                             </span>

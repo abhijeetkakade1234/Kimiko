@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@inco/js": "0.8.0-devnet-3",
     "@solana/web3.js": "^1.98.4",
     "clsx": "^2.1.1",
     "framer-motion": "^12.27.5",
@@ -17,7 +18,8 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.6.0",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "viem": "^2.44.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

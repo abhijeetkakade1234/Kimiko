@@ -13,6 +13,8 @@ import PrivacyScore from '@/components/PrivacyScore';
 import LeakageVectors from '@/components/LeakageVectors';
 import RecommendationsList from '@/components/RecommendationsList';
 import TransactionGraph from '@/components/TransactionGraph';
+import IncoShield from '@/components/IncoShield';
+import SurveillanceReport from '@/components/SurveillanceReport'; // Added
 import { buildGraphData } from '@/lib/graph/builder';
 
 export default function AnalysisPage() {
@@ -76,12 +78,29 @@ export default function AnalysisPage() {
     }
 
     if (error) {
+        const isRateLimit = error.includes('429') || error.includes('Too many requests');
+
         return (
             <div className="min-h-screen bg-gradient-mesh flex flex-col items-center justify-center p-6 bg-[#050505] text-center">
                 <div className="glass p-12 max-w-lg">
                     <ShieldAlert className="w-16 h-16 text-red-500 mx-auto mb-6" />
-                    <h1 className="text-3xl font-bold mb-4">Analysis Failed</h1>
-                    <p className="text-white/60 mb-8">{error}</p>
+                    <h1 className="text-3xl font-bold mb-4">
+                        {isRateLimit ? 'RPC Traffic Spike' : 'Analysis Failed'}
+                    </h1>
+                    <p className="text-white/60 mb-8">
+                        {isRateLimit ? (
+                            <>
+                                The Solana RPC is experiencing high traffic. This typically happens with
+                                <span className="text-white font-medium mx-1">very active wallets</span>
+                                (exchanges, protocols) that have massive transaction histories.
+                                <br /><br />
+                                <span className="text-primary">Try using your own wallet address instead</span> -
+                                personal wallets analyze much faster!
+                            </>
+                        ) : (
+                            error
+                        )}
+                    </p>
                     <button
                         onClick={() => router.push('/')}
                         className="bg-white/10 hover:bg-white/20 px-8 py-3 rounded-xl font-bold transition-all"
@@ -100,13 +119,22 @@ export default function AnalysisPage() {
             {/* Header */}
             <header className="sticky top-0 z-50 glass border-b border-white/5 bg-black/50 backdrop-blur-xl">
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                    <button
-                        onClick={() => router.push('/')}
-                        className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
-                    >
-                        <ChevronLeft className="w-5 h-5" />
-                        <span className="font-semibold">Back to Search</span>
-                    </button>
+                    <div className="flex items-center gap-6">
+                        <button
+                            onClick={() => router.push('/')}
+                            className="flex items-center gap-2 text-white/60 hover:text-white transition-colors border-r border-white/10 pr-6 mr-2"
+                        >
+                            <ChevronLeft className="w-5 h-5" />
+                            <span className="font-semibold">Back</span>
+                        </button>
+                        <div className="flex items-center gap-3">
+                            <img src="/logo.svg" alt="Kimiko Logo" className="w-8 h-8 drop-shadow-glow" />
+                            <div className="flex flex-col">
+                                <span className="text-xl font-black tracking-tighter text-white uppercase italic leading-none">Kimiko</span>
+                                <span className="text-[8px] text-primary/60 font-mono tracking-[0.3em] font-bold">キミコ</span>
+                            </div>
+                        </div>
+                    </div>
 
                     <div className="flex items-center gap-4">
                         <div className="hidden md:flex flex-col items-end">
@@ -176,7 +204,10 @@ export default function AnalysisPage() {
 
                                 <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
                                     <span className="text-sm text-white/40">Reference ID: {data.metadata.analyzedAt}</span>
-                                    <button className="text-secondary text-sm font-bold flex items-center gap-1 hover:underline">
+                                    <button
+                                        onClick={() => document.getElementById('surveillance-report')?.scrollIntoView({ behavior: 'smooth' })}
+                                        className="text-secondary text-sm font-bold flex items-center gap-1 hover:underline"
+                                    >
                                         View Report <ExternalLink className="w-4 h-4" />
                                     </button>
                                 </div>
@@ -190,8 +221,12 @@ export default function AnalysisPage() {
                         </div>
                     </div>
 
-                    {/* Right Column: Recommendations */}
-                    <div className="lg:col-span-12 xl:col-span-4">
+                    {/* Right Column: Surveillance & Recommendations */}
+                    <div className="lg:col-span-12 xl:col-span-4 flex flex-col gap-8">
+                        <div id="surveillance-report">
+                            <SurveillanceReport insights={data.surveillanceInsights} />
+                        </div>
+                        <IncoShield wallet={data.wallet} score={data.privacyScore} />
                         <RecommendationsList recommendations={data.recommendations} />
                     </div>
                 </div>

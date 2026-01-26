@@ -3,8 +3,17 @@ export interface WalletAnalysis {
     privacyScore: number;
     complianceTier: 'LOW_RISK' | 'MEDIUM_RISK' | 'HIGH_RISK' | 'NEW_WALLET';
     leakageVectors: LeakageVector[];
+    surveillanceInsights: SurveillanceInsight[]; // Added for Hackathon Track 1
     recommendations: Recommendation[];
     metadata: AnalysisMetadata;
+}
+
+export interface SurveillanceInsight {
+    type: 'identity' | 'financial' | 'social' | 'behavioral';
+    label: string;
+    description: string;
+    exposedValue?: string;
+    privacyImpact: 'LOW' | 'MEDIUM' | 'HIGH';
 }
 
 export interface LeakageVector {
@@ -22,6 +31,7 @@ export type LeakageCategory =
     | 'TEMPORAL_PATTERN'
     | 'SOCIAL_GRAPH'
     | 'BRIDGE_CORRELATION'
+    | 'MIXER_CORRELATION'
     | 'LABELED_INTERACTION'
     | 'NFT_IDENTITY';
 
@@ -45,7 +55,7 @@ export interface AnalysisMetadata {
     analyzedAt: number;
     transactionCount: number;
     accountAge: number;
-    dataSource: 'helius' | 'public-rpc';
+    dataSource: 'helius' | 'public-rpc' | 'solana-rpc' | 'mock-fallback';
     processingTime: number;
     transactions?: TransactionNode[]; // Added for visualization
 }

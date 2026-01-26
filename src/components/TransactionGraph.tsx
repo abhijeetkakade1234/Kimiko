@@ -44,7 +44,11 @@ const TransactionGraph: React.FC<TransactionGraphProps> = ({ data }) => {
 
         svg.call(zoom as any);
 
-        const nodes: D3Node[] = data.nodes.map(d => ({ ...d }));
+        const nodes: D3Node[] = data.nodes.map(d => ({
+            ...d,
+            x: width / 2 + (Math.random() - 0.5) * 100,
+            y: height / 2 + (Math.random() - 0.5) * 100
+        }));
         const links: D3Link[] = data.links.map(d => ({
             source: d.source,
             target: d.target,
@@ -54,10 +58,10 @@ const TransactionGraph: React.FC<TransactionGraphProps> = ({ data }) => {
         // Simulation setup
         const simulation = d3.forceSimulation<D3Node>(nodes)
             .force('link', d3.forceLink<D3Node, D3Link>(links).id(d => d.id).distance(100))
-            .force('charge', d3.forceManyBody().strength(-200))
+            .force('charge', d3.forceManyBody().strength(-300))
             .force('center', d3.forceCenter(width / 2, height / 2))
-            .force('x', d3.forceX(width / 2).strength(0.05))
-            .force('y', d3.forceY(height / 2).strength(0.05));
+            .force('x', d3.forceX(width / 2).strength(0.07))
+            .force('y', d3.forceY(height / 2).strength(0.07));
 
         // Links
         const link = g.append('g')

@@ -186,6 +186,43 @@ export const detectBridgeCorrelation = (
     };
 };
 
+export const detectMixerCorrelation = (
+    transactions: TransactionNode[]
+): LeakageVector | null => {
+    // Simulated detection for mixers/privacy tools
+    const mixerKeywords = ['mixer', 'tornado', 'railgun', 'elusiv', 'inco'];
+    const interactions = transactions.filter(tx =>
+        tx.programs.some(p => mixerKeywords.some(k => p.toLowerCase().includes(k))) ||
+        tx.counterparties.some(c => mixerKeywords.some(k => c.toLowerCase().includes(k)))
+    );
+
+    if (interactions.length === 0) return null;
+
+    // Check for temporal correlation (very short delays between transactions)
+    const timestamps = transactions.map(t => t.timestamp).sort((a, b) => a - b);
+    let shortDelays = 0;
+    for (let i = 1; i < timestamps.length; i++) {
+        if (timestamps[i] - timestamps[i - 1] < 600) { // < 10 mins
+            shortDelays++;
+        }
+    }
+
+    const score = Math.min(100, (interactions.length * 20) + (shortDelays * 10));
+
+    return {
+        category: 'MIXER_CORRELATION',
+        severity: score > 70 ? 'CRITICAL' : 'HIGH',
+        score,
+        description: `Improper use of privacy protocols detected. Short time delays (${shortDelays} instances) between transactions make it easy to link your identity to private outputs.`,
+        evidence: interactions.map(tx => ({
+            type: 'transaction',
+            value: tx.signature,
+            confidence: 0.9,
+            timestamp: tx.timestamp
+        }))
+    };
+};
+
 export const classifyLeakage = (
     transactions: TransactionNode[]
 ): LeakageVector[] => {
@@ -195,7 +232,8 @@ export const classifyLeakage = (
         detectTemporalPatterns(transactions),
         detectClusteringRisk(transactions),
         detectSocialGraph(transactions),
-        detectBridgeCorrelation(transactions)
+        detectBridgeCorrelation(transactions),
+        detectMixerCorrelation(transactions)
     ];
 
     return vectors.filter((v): v is LeakageVector => v !== null);
