@@ -11,7 +11,7 @@ const isValidHeliusKey = HELIUS_KEY && HELIUS_KEY.length > 0 && !HELIUS_KEY.star
 // Construct specialized URLs based on network
 const isDevnet = NETWORK === 'devnet';
 
-const HELIUS_URL = isValidHeliusKey ? `https://${isDevnet ? 'devnet' : 'mainnet'}.helius-rpc.com/?api-key=${HELIUS_KEY}` : null;
+export const HELIUS_URL = isValidHeliusKey ? `https://${isDevnet ? 'devnet' : 'mainnet'}.helius-rpc.com/?api-key=${HELIUS_KEY}` : null;
 const ANKR_URL = ANKR_KEY ? `https://rpc.ankr.com/${isDevnet ? 'solana_devnet' : 'solana'}/${ANKR_KEY}` : `https://rpc.ankr.com/${isDevnet ? 'solana_devnet' : 'solana'}`;
 const ALCHEMY_URL = ALCHEMY_KEY ? `https://solana-${isDevnet ? 'devnet' : 'mainnet'}.g.alchemy.com/v2/${ALCHEMY_KEY}` : null;
 const PUBLIC_SOLANA_URL = isDevnet ? 'https://api.devnet.solana.com' : 'https://api.mainnet-beta.solana.com';

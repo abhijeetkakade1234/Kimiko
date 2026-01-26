@@ -32,19 +32,25 @@ export default function LeakageVectors({ vectors }: LeakageVectorsProps) {
                     >
                         <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center gap-3">
-                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${vector.severity === 'CRITICAL' ? 'bg-red-500/20 text-red-500' :
+                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${vector.severity === 'CRITICAL' ? 'bg-red-500/20 text-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]' :
                                         vector.severity === 'HIGH' ? 'bg-orange-500/20 text-orange-500' :
-                                            'bg-yellow-500/20 text-yellow-500'
+                                            vector.category === 'NFT_IDENTITY' ? 'bg-primary/20 text-primary' :
+                                                'bg-yellow-500/20 text-yellow-500'
                                     }`}>
-                                    {vector.severity === 'CRITICAL' ? <Zap className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
+                                    {vector.severity === 'CRITICAL' ? <Zap className="w-5 h-5" /> :
+                                        vector.category === 'NFT_IDENTITY' ? <Zap className="w-5 h-5 animate-pulse" /> :
+                                            <AlertTriangle className="w-5 h-5" />}
                                 </div>
-                                <h4 className="font-bold text-white/90">{vector.category.replace('_', ' ')}</h4>
+                                <h4 className="font-bold text-white/90 uppercase tracking-tight text-sm">{vector.category.replace('_', ' ')}</h4>
                             </div>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider ${vector.severity === 'CRITICAL' ? 'bg-red-500 text-white' :
-                                    'bg-white/10 text-white/60'
-                                }`}>
-                                {vector.severity}
-                            </span>
+                            <div className="flex flex-col items-end gap-1">
+                                <span className={`text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-[0.1em] ${vector.severity === 'CRITICAL' ? 'bg-red-500 text-white' :
+                                        vector.severity === 'HIGH' ? 'bg-orange-500 text-white' :
+                                            'bg-white/10 text-white/60'
+                                    }`}>
+                                    {vector.severity}
+                                </span>
+                            </div>
                         </div>
 
                         <p className="text-sm text-white/40 leading-relaxed mb-6">

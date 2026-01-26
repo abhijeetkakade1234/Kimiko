@@ -6,6 +6,8 @@ import { determineComplianceTier } from './compliance';
 import { generateRecommendations } from './recommender';
 import { WalletAnalysis, AnalysisMetadata, TransactionNode } from '../types';
 import { getDemoWallet } from '../demo/mock-data';
+import { ResilienceProvider } from './resilience';
+import { DasProvider } from '../solana/das';
 
 export const analyzeWallet = async (
     walletAddress: string
@@ -21,16 +23,32 @@ export const analyzeWallet = async (
 
     try {
         // 1. Fetch history
-        // Ultra-conservative limit of 10 for maximum RPC stability
         const history = await fetchFullTransactionHistory(walletAddress, 10);
 
         // 2. Parse
         const nodes = parseTransactionHistory(history, walletAddress);
 
-        // 3. Classify Leakage
+        // 3. DAS Enrichment (Production Track)
+        const assetData = await DasProvider.getAssetsByOwner(walletAddress);
+
+        // 4. Classify Leakage
         const leakageVectors = classifyLeakage(nodes);
 
-        // 4. Calculate Score
+        // Add NFT-specific leakage if any high-risk assets found
+        if (assetData?.items && assetData.items.length > 0) {
+            const hasSns = assetData.items.some(a => a.id.includes('.sol') || a.content?.metadata?.name?.includes('.sol'));
+            if (hasSns) {
+                leakageVectors.push({
+                    category: 'NFT_IDENTITY',
+                    severity: 'HIGH',
+                    score: 75,
+                    description: 'Solana Name Service (SNS) detected. Your wallet is directly linked to a human-readable identity.',
+                    evidence: [{ type: 'SNS', value: '.sol handle', confidence: 1.0 }]
+                });
+            }
+        }
+
+        // 5. Calculate Score
         const privacyScore = calculatePrivacyScore(leakageVectors);
 
         // 5. Determine Compliance
@@ -39,8 +57,8 @@ export const analyzeWallet = async (
         // 6. Generate Recommendations
         const recommendations = generateRecommendations(leakageVectors);
 
-        // 7. Surveillance Insights (Hackathon Track 1)
-        const surveillanceInsights = generateSurveillanceInsights(nodes, privacyScore);
+        // 7. Surveillance Insights
+        const surveillanceInsights = generateSurveillanceInsights(nodes, privacyScore, assetData?.total || 0);
 
         const endTime = Date.now();
 
@@ -63,45 +81,15 @@ export const analyzeWallet = async (
             metadata
         };
     } catch (error: any) {
-        console.error(`[Kimiko Engine] RPC Failure for ${walletAddress}:`, error.message);
-        console.warn(`[Kimiko Engine] ZEN-RESILIENCE: Generating dynamic mock intelligence for ${walletAddress}`);
-
-        // Base fallback data
-        const baseMock = getDemoWallet('Hv4KArfBvUpNcAsrE2HjS2mQ2z1vA8n3L9pQx7R9mK2z')!;
-
-        // Generate pseudo-random transaction history based on the wallet address
-        const dynamicTransactions: TransactionNode[] = Array.from({ length: 15 }).map((_, i) => {
-            const seed = (walletAddress.charCodeAt(i % walletAddress.length) + i) % 50;
-            const mockCounterparty = `Addr${seed}x${walletAddress.slice(0, 4)}...${seed}v9`;
-
-            return {
-                signature: `mock_sig_${walletAddress.slice(0, 5)}_${i}`,
-                timestamp: Date.now() - (i * 3600000),
-                slot: 123456789 - i,
-                type: i % 3 === 0 ? 'swap' : 'transfer',
-                counterparties: [mockCounterparty],
-                programs: i % 3 === 0 ? ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'] : ['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA']
-            };
-        });
-
-        return {
-            ...baseMock,
-            wallet: walletAddress,
-            metadata: {
-                ...baseMock.metadata,
-                dataSource: 'mock-fallback',
-                analyzedAt: Date.now(),
-                transactions: dynamicTransactions,
-                transactionCount: dynamicTransactions.length
-            }
-        };
+        console.error(`[Kimiko Engine] Primary Analysis Path Failed:`, error.message);
+        return ResilienceProvider.getFallback(walletAddress);
     }
 };
 
 /**
  * Generate insights about how visible/surveilled a wallet is
  */
-function generateSurveillanceInsights(nodes: TransactionNode[], score: number): any[] {
+function generateSurveillanceInsights(nodes: TransactionNode[], score: number, assetCount: number = 0): any[] {
     const insights: any[] = [];
 
     // 1. Behavioral Profiling
@@ -115,7 +103,16 @@ function generateSurveillanceInsights(nodes: TransactionNode[], score: number): 
         });
     }
 
-    // 2. Financial Visibility
+    // 2. NFT Asset Profiling (New Production Insight)
+    if (assetCount > 20) {
+        insights.push({
+            type: 'social',
+            label: 'Collection Clustering',
+            description: 'You own a large number of unique assets. This creates a "Digital Fingerprint" that is almost impossible to replicate, making your move across the ecosystem highly trackable.',
+            exposedValue: `${assetCount} Unique Assets`,
+            privacyImpact: 'HIGH'
+        });
+    }
     if (nodes.length > 10) {
         insights.push({
             type: 'financial',
@@ -126,7 +123,7 @@ function generateSurveillanceInsights(nodes: TransactionNode[], score: number): 
         });
     }
 
-    // 3. Selective Privacy Note (Track 2)
+    // 3. Selective Privacy Note
     if (score < 50) {
         insights.push({
             type: 'behavioral',

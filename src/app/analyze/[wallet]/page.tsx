@@ -14,7 +14,9 @@ import LeakageVectors from '@/components/LeakageVectors';
 import RecommendationsList from '@/components/RecommendationsList';
 import TransactionGraph from '@/components/TransactionGraph';
 import IncoShield from '@/components/IncoShield';
-import SurveillanceReport from '@/components/SurveillanceReport'; // Added
+import SelectiveVisibility from '@/components/SelectiveVisibility';
+import ZkAttestation from '@/components/ZkAttestation';
+import SurveillanceReport from '@/components/SurveillanceReport';
 import { buildGraphData } from '@/lib/graph/builder';
 
 export default function AnalysisPage() {
@@ -214,10 +216,14 @@ export default function AnalysisPage() {
                             </motion.div>
                         </div>
 
-                        {/* Transaction Graph */}
+                        {/* Middle Section: Graph & Visibility */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <LeakageVectors vectors={data.leakageVectors} />
+                            <SelectiveVisibility />
+                        </div>
+
                         <div className="grid grid-cols-1 gap-8">
                             {graphData && <TransactionGraph data={graphData} />}
-                            <LeakageVectors vectors={data.leakageVectors} />
                         </div>
                     </div>
 
@@ -227,6 +233,7 @@ export default function AnalysisPage() {
                             <SurveillanceReport insights={data.surveillanceInsights} />
                         </div>
                         <IncoShield wallet={data.wallet} score={data.privacyScore} />
+                        <ZkAttestation score={data.privacyScore} />
                         <RecommendationsList recommendations={data.recommendations} />
                     </div>
                 </div>

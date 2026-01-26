@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeWallet } from '@/lib/analysis/engine';
-import { getCache, setCache } from '@/lib/utils/cache';
+import { persistentCache } from '@/lib/utils/persistentCache';
 import { requestDeduplicator } from '@/lib/utils/requestDeduplicator';
 
 export async function POST(req: NextRequest) {
@@ -15,9 +15,9 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Check cache first (before deduplication to avoid race conditions)
+        // Check cache first
         const cacheKey = `analysis_${wallet}`;
-        const cachedResult = getCache(cacheKey);
+        const cachedResult = persistentCache.get(cacheKey);
         if (cachedResult) {
             console.log(`[API] Serving cached analysis for ${wallet}`);
             return NextResponse.json({ success: true, data: cachedResult, cached: true });
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
                 const analysis = await analyzeWallet(wallet);
 
                 // Save to cache (1 hour)
-                setCache(cacheKey, analysis, 3600);
+                persistentCache.set(cacheKey, analysis, 3600);
 
                 return analysis;
             }
