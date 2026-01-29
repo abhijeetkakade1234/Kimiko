@@ -1,0 +1,18 @@
+name = "kimiko-privacy-toolkit"
+compatibility_date = "2024-04-03"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "kimiko-db"
+database_id = "f67b407b-5c8e-4a6c-9c7a-5b8e9d6c7a4b"
+
+# KV Namespace for lightweight caching
+[[kv_namespaces]]
+binding = "REPORT_CACHE"
+id = "a8c903530e3848b6a3862cd5fbe1a208"
+
+# Cron Triggers for cleanup
+[triggers]
+crons = ["0 0 * * *"] # Run daily at midnight

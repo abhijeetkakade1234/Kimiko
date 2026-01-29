@@ -5,10 +5,10 @@ import { WalletAnalysis } from '@/lib/types';
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { wallet: string } }
+    context: { params: Promise<{ wallet: string }> }
 ) {
     try {
-        const { wallet } = params;
+        const { wallet } = await context.params;
 
         if (!wallet) {
             return NextResponse.json(
