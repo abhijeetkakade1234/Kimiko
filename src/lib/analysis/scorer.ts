@@ -8,8 +8,8 @@ const CATEGORY_WEIGHTS: Record<LeakageCategory, number> = {
     TEMPORAL_PATTERN: 15,
     ADDRESS_REUSE: 15,
     NFT_IDENTITY: 10,
-    // Fallback for types that might be added later
-    SOCIAL_GRAPH: 15
+    SOCIAL_GRAPH: 15,
+    MIXER_CORRELATION: 25
 };
 
 export const calculatePrivacyScore = (vectors: LeakageVector[]): number => {

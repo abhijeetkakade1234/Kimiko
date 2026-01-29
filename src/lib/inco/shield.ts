@@ -72,22 +72,8 @@ export class IncoShieldUtility {
                 }
             }
         } catch (error: any) {
-            // ==========================================
-            // ZEN-RESILIENCE LAYER (Demo Protection)
-            // ==========================================
-            console.warn(`[Zen-Resilience] Inco Crypto-Layer failed: ${error.message}`);
-            console.warn(`[Zen-Resilience] Activating Mock-Encryption for Demo integrity.`);
-
-            // Create a realistic-looking FHE ciphertext hash 
-            // but derived deterministically from the user's data
-            const deterministicMock = keccak256(
-                encodePacked(['string', 'uint256', 'string'], [wallet, BigInt(score), 'KIMIKO_SALT_V1'])
-            );
-
-            // Artificially delay to simulate network latency for the video
-            await new Promise(r => setTimeout(r, 800));
-
-            return deterministicMock;
+            console.error(`[Inco] Shielding process failed: ${error.message}`);
+            throw error;
         }
     }
 

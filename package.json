@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:cf": "npx @opennextjs/cloudflare build",
+    "preview": "wrangler dev",
+    "deploy": "pnpm build && pnpm build:cf && wrangler deploy",
     "start": "next start",
     "lint": "eslint"
   },
@@ -12,6 +15,7 @@
     "@inco/js": "0.8.0-devnet-3",
     "@solana/web3.js": "^1.98.4",
     "clsx": "^2.1.1",
+    "d3": "^7.9.0",
     "framer-motion": "^12.27.5",
     "lucide-react": "^0.562.0",
     "next": "16.1.4",
@@ -22,6 +26,8 @@
     "viem": "^2.44.4"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260129.0",
+    "@opennextjs/cloudflare": "^1.16.1",
     "@tailwindcss/postcss": "^4",
     "@types/d3": "^7.4.3",
     "@types/node": "^20",
@@ -30,6 +36,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.61.1"
   }
 }

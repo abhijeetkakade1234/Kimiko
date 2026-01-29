@@ -32,21 +32,23 @@ export default function AnalysisPage() {
     useEffect(() => {
         const fetchAnalysis = async () => {
             try {
-                const res = await fetch('/api/analyze', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ wallet })
-                });
+                const res = await fetch(`/api/analyze?wallet=${wallet}`);
                 const json = await res.json();
 
                 if (json.success) {
-                    setData(json.data);
+                    if (json.data) {
+                        setData(json.data);
+                        setLoading(false);
+                    } else if (json.status === 'pending' || json.status === 'processing') {
+                        // Poll again in 5 seconds
+                        setTimeout(fetchAnalysis, 5000);
+                    }
                 } else {
                     setError(json.error || 'Failed to analyze wallet');
+                    setLoading(false);
                 }
             } catch (err) {
                 setError('An unexpected error occurred');
-            } finally {
                 setLoading(false);
             }
         };

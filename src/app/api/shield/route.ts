@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+export const runtime = 'edge';
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
     try {
         const { wallet, encryptedScore } = await req.json();
 
@@ -12,13 +12,13 @@ export async function POST(req: NextRequest) {
         console.log(`[Inco Relayer] Shielding wallet ${wallet} with encrypted score.`);
 
         // Mock success for hackathon demo
-        return NextResponse.json({
+        return Response.json({
             success: true,
-            txHash: '0x' + Math.random().toString(16).slice(2),
+            txHash: '0x' + (Math.random().toString(16).slice(2)).padEnd(64, '0'),
             message: 'Wallet successfully shielded with Inco FHE'
         });
     } catch (error: any) {
-        return NextResponse.json(
+        return Response.json(
             { success: false, error: error.message },
             { status: 500 }
         );

@@ -5,18 +5,10 @@ import { calculatePrivacyScore } from './scorer';
 import { determineComplianceTier } from './compliance';
 import { generateRecommendations } from './recommender';
 import { WalletAnalysis, AnalysisMetadata, TransactionNode } from '../types';
-import { getDemoWallet } from '../demo/mock-data';
 
 export const analyzeWallet = async (
     walletAddress: string
 ): Promise<WalletAnalysis> => {
-    // Check if this is a demo wallet first
-    const demoResult = getDemoWallet(walletAddress);
-    if (demoResult) {
-        console.log(`[Kimiko Engine] Using Static DEMO data for ${walletAddress}`);
-        return demoResult;
-    }
-
     const startTime = Date.now();
 
     try {
@@ -64,37 +56,7 @@ export const analyzeWallet = async (
         };
     } catch (error: any) {
         console.error(`[Kimiko Engine] RPC Failure for ${walletAddress}:`, error.message);
-        console.warn(`[Kimiko Engine] ZEN-RESILIENCE: Generating dynamic mock intelligence for ${walletAddress}`);
-
-        // Base fallback data
-        const baseMock = getDemoWallet('Hv4KArfBvUpNcAsrE2HjS2mQ2z1vA8n3L9pQx7R9mK2z')!;
-
-        // Generate pseudo-random transaction history based on the wallet address
-        const dynamicTransactions: TransactionNode[] = Array.from({ length: 15 }).map((_, i) => {
-            const seed = (walletAddress.charCodeAt(i % walletAddress.length) + i) % 50;
-            const mockCounterparty = `Addr${seed}x${walletAddress.slice(0, 4)}...${seed}v9`;
-
-            return {
-                signature: `mock_sig_${walletAddress.slice(0, 5)}_${i}`,
-                timestamp: Date.now() - (i * 3600000),
-                slot: 123456789 - i,
-                type: i % 3 === 0 ? 'swap' : 'transfer',
-                counterparties: [mockCounterparty],
-                programs: i % 3 === 0 ? ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'] : ['TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA']
-            };
-        });
-
-        return {
-            ...baseMock,
-            wallet: walletAddress,
-            metadata: {
-                ...baseMock.metadata,
-                dataSource: 'mock-fallback',
-                analyzedAt: Date.now(),
-                transactions: dynamicTransactions,
-                transactionCount: dynamicTransactions.length
-            }
-        };
+        throw error; // Rethrow to let the Queue or API handle it
     }
 };
 

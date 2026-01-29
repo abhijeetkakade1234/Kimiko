@@ -1,97 +1,155 @@
-import { Connection, clusterApiUrl } from '@solana/web3.js';
+import { Connection } from '@solana/web3.js';
 
-// Validate HELIUS_KEY to prevent security vulnerabilities
-const HELIUS_KEY = process.env.HELIUS_API_KEY?.trim();
-const ANKR_KEY = process.env.ANKR_API_KEY?.trim();
-const ALCHEMY_KEY = process.env.ALCHEMY_API_KEY?.trim();
-const NETWORK = process.env.NEXT_PUBLIC_SOLANA_NETWORK || 'mainnet-beta';
+/**
+ * Kimiko RPC Client with Health-Aware Rotation
+ */
 
-const isValidHeliusKey = HELIUS_KEY && HELIUS_KEY.length > 0 && !HELIUS_KEY.startsWith('undefined');
+// Define environment interface for type safety
+interface KimikoEnv {
+    HELIUS_API_KEY?: string;
+    ANKR_API_KEY?: string;
+    ALCHEMY_API_KEY?: string;
+    NEXT_PUBLIC_SOLANA_NETWORK?: string;
+    NEXT_PUBLIC_SOLANA_RPC_URL?: string;
+}
 
-// Construct specialized URLs based on network
+// Utility to get environment variables safely without @ts-ignore
+const getEnv = (key: keyof KimikoEnv): string | undefined => {
+    // Check process.env (Node.js)
+    if (typeof process !== 'undefined' && process.env && (process.env as any)[key]) {
+        return (process.env as any)[key];
+    }
+    // Check globalThis (Cloudflare Workers)
+    const globalEnv = (globalThis as unknown as KimikoEnv);
+    if (globalEnv && globalEnv[key]) {
+        return globalEnv[key];
+    }
+    return undefined;
+};
+
+const HELIUS_KEY = getEnv('HELIUS_API_KEY')?.trim();
+const ANKR_KEY = getEnv('ANKR_API_KEY')?.trim();
+const ALCHEMY_KEY = getEnv('ALCHEMY_API_KEY')?.trim();
+const NETWORK = getEnv('NEXT_PUBLIC_SOLANA_NETWORK') || 'mainnet-beta';
+
+const isValidHeliusKey = !!(HELIUS_KEY && HELIUS_KEY.length > 0 && !HELIUS_KEY.startsWith('undefined'));
 const isDevnet = NETWORK === 'devnet';
 
+// Construct provider URLs
 const HELIUS_URL = isValidHeliusKey ? `https://${isDevnet ? 'devnet' : 'mainnet'}.helius-rpc.com/?api-key=${HELIUS_KEY}` : null;
 const ANKR_URL = ANKR_KEY ? `https://rpc.ankr.com/${isDevnet ? 'solana_devnet' : 'solana'}/${ANKR_KEY}` : `https://rpc.ankr.com/${isDevnet ? 'solana_devnet' : 'solana'}`;
 const ALCHEMY_URL = ALCHEMY_KEY ? `https://solana-${isDevnet ? 'devnet' : 'mainnet'}.g.alchemy.com/v2/${ALCHEMY_KEY}` : null;
 const PUBLIC_SOLANA_URL = isDevnet ? 'https://api.devnet.solana.com' : 'https://api.mainnet-beta.solana.com';
 
-// RPC providers that support batch requests
-const BATCH_RPC_PROVIDERS = [
-    ANKR_URL,
-    process.env.NEXT_PUBLIC_SOLANA_RPC_URL,
-    PUBLIC_SOLANA_URL,
-].filter(Boolean) as string[];
-
-// All RPC providers
-const RPC_PROVIDERS = [
+const ALL_RPC_LIST = [
     HELIUS_URL,
     ALCHEMY_URL,
     ANKR_URL,
-    process.env.NEXT_PUBLIC_SOLANA_RPC_URL,
+    getEnv('NEXT_PUBLIC_SOLANA_RPC_URL'),
     PUBLIC_SOLANA_URL,
 ].filter(Boolean) as string[];
 
-// Log status
-if (!isValidHeliusKey && process.env.HELIUS_API_KEY) {
-    console.warn('[Kimiko RPC] HELIUS_API_KEY is invalid - falling back');
+// Batch providers (Ankr, Public, Custom)
+const BATCH_RPC_LIST = [
+    ANKR_URL,
+    getEnv('NEXT_PUBLIC_SOLANA_RPC_URL'),
+    PUBLIC_SOLANA_URL,
+].filter(Boolean) as string[];
+
+/**
+ * Health Tracker System
+ */
+interface ProviderHealth {
+    url: string;
+    failures: number;
+    lastFailure: number;
 }
 
-let currentRpcIndex = 0;
-let currentBatchRpcIndex = 0;
+const HEALTH_STATS = new Map<string, ProviderHealth>(
+    ALL_RPC_LIST.map(url => [url, { url, failures: 0, lastFailure: 0 }])
+);
 
-export const getCurrentRPC = () => {
-    const rpc = RPC_PROVIDERS[currentRpcIndex % RPC_PROVIDERS.length];
-    const providerNum = currentRpcIndex % RPC_PROVIDERS.length + 1;
-    const isHelius = isValidHeliusKey && providerNum === 1;
-    console.log(`[Kimiko RPC] Using provider ${providerNum}/${RPC_PROVIDERS.length}${isHelius ? ' (Helius)' : ''}`);
-    return rpc;
+const MAX_FAILURES = 3;
+const COOLDOWN_MS = 60000; // 1 minute cooldown for failed providers
+
+const getHealthiestProvider = (list: string[]): string => {
+    const now = Date.now();
+
+    // Filter for providers that aren't in cooldown OR have low failure counts
+    const available = list.filter(url => {
+        const stats = HEALTH_STATS.get(url);
+        if (!stats) return true;
+
+        const isCoolingDown = stats.failures >= MAX_FAILURES && (now - stats.lastFailure < COOLDOWN_MS);
+        return !isCoolingDown;
+    });
+
+    const pool = available.length > 0 ? available : list;
+
+    // Pick the one with the fewest failures in the pool
+    return pool.reduce((best, current) => {
+        const statsBest = HEALTH_STATS.get(best);
+        const statsCurrent = HEALTH_STATS.get(current);
+        if (!statsBest || !statsCurrent) return best;
+        return statsCurrent.failures < statsBest.failures ? current : best;
+    }, pool[0]);
 };
 
-export const getBatchRPC = () => {
-    const rpc = BATCH_RPC_PROVIDERS[currentBatchRpcIndex % BATCH_RPC_PROVIDERS.length];
-    const providerNum = currentBatchRpcIndex % BATCH_RPC_PROVIDERS.length + 1;
-    console.log(`[Kimiko RPC] Using batch-compatible provider ${providerNum}/${BATCH_RPC_PROVIDERS.length} (Ankr)`);
-    return rpc;
+// State
+let currentUrl = getHealthiestProvider(ALL_RPC_LIST);
+let currentBatchUrl = getHealthiestProvider(BATCH_RPC_LIST);
+
+export let connection = new Connection(currentUrl, 'confirmed');
+export let batchConnection = new Connection(currentBatchUrl, 'confirmed');
+
+/**
+ * Public API
+ */
+
+export const getCurrentRPC = () => currentUrl;
+export const getBatchRPC = () => currentBatchUrl;
+
+export const reportFailure = (url: string) => {
+    const stats = HEALTH_STATS.get(url);
+    if (stats) {
+        stats.failures++;
+        stats.lastFailure = Date.now();
+        console.warn(`[Kimiko RPC] Provider failure reported: ${url} (Total: ${stats.failures})`);
+    }
 };
 
 export const rotateRPC = () => {
-    currentRpcIndex++;
-    const newRPC = getCurrentRPC();
-    console.log('[Kimiko RPC] Rotating to next provider due to rate limit');
-    return new Connection(newRPC, 'confirmed');
+    reportFailure(currentUrl);
+    currentUrl = getHealthiestProvider(ALL_RPC_LIST);
+    console.log(`[Kimiko RPC] Rotating to healthiest provider: ${currentUrl}`);
+    connection = new Connection(currentUrl, 'confirmed');
+    return connection;
 };
 
 export const rotateBatchRPC = () => {
-    currentBatchRpcIndex++;
-    const newRPC = getBatchRPC();
-    console.log('[Kimiko RPC] Rotating to next batch provider due to rate limit');
-    return new Connection(newRPC, 'confirmed');
+    reportFailure(currentBatchUrl);
+    currentBatchUrl = getHealthiestProvider(BATCH_RPC_LIST);
+    console.log(`[Kimiko RPC] Rotating to healthiest batch provider: ${currentBatchUrl}`);
+    batchConnection = new Connection(currentBatchUrl, 'confirmed');
+    return batchConnection;
 };
-
-// Primary connection (can use Helius for signature fetching)
-export let connection = new Connection(getCurrentRPC(), 'confirmed');
-
-// Separate connection for batch operations (uses Ankr, not Helius free tier)
-export let batchConnection = new Connection(getBatchRPC(), 'confirmed');
 
 export const checkConnection = async () => {
     try {
         const slot = await connection.getSlot();
         return { success: true, slot };
     } catch (err) {
-        console.error('Solana RPC Connection Error:', err);
+        reportFailure(currentUrl);
         return { success: false, error: err };
     }
 };
 
-// Utility to refresh connection (useful after rotation)
 export const refreshConnection = () => {
-    connection = new Connection(getCurrentRPC(), 'confirmed');
+    connection = new Connection(currentUrl, 'confirmed');
     return connection;
 };
 
 export const refreshBatchConnection = () => {
-    batchConnection = new Connection(getBatchRPC(), 'confirmed');
+    batchConnection = new Connection(currentBatchUrl, 'confirmed');
     return batchConnection;
 };

@@ -1,0 +1,26 @@
+name = "kimiko-app"
+main = ".open-next/worker.js"
+compatibility_date = "2026-01-01"
+compatibility_flags = ["nodejs_compat"]
+minify = false
+
+# Routes and Static Assets are handled by OpenNext
+# But we need bindings for our services
+
+# Cloudflare D1 (Database)
+[[d1_databases]]
+binding = "DB"
+database_name = "kimiko-db"
+database_id = "ad5c5858-8bfa-4090-8503-b9cc7ed51af8" # Will be updated after 'wrangler d1 create'
+
+# Cloudflare KV (Caching)
+[[kv_namespaces]]
+binding = "REPORT_CACHE"
+id = "2f5ecab4ffd74632812b6e4fa1afef3b"
+
+# Cron Triggers (Cleanup)
+[triggers]
+crons = [
+    "0 */6 * * *",   # Every 6 hours: Clean expired reports
+    "0 0 * * *",     # Daily at midnight UTC: Reset rate limit counters
+]
