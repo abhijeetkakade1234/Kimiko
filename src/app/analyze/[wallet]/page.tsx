@@ -37,7 +37,7 @@ export default function AnalysisPage() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ wallet })
                 });
-                const json = await res.json();
+                const json = (await res.json()) as any;
 
                 if (json.success) {
                     setData(json.data);

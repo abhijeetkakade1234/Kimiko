@@ -29,10 +29,8 @@ class RequestDeduplicator {
             this.cleanup();
         }, this.CLEANUP_INTERVAL);
 
-        // Ensure cleanup runs on Node.js exit
-        if (typeof process !== 'undefined') {
-            process.on('beforeExit', () => this.stopPeriodicCleanup());
-        }
+        // Deduplicator on Edge/Serverless handles cleanup request-by-request or via TTL.
+        // Node-specific process exit hooks are not supported in Edge Runtime.
     }
 
     /**
