@@ -2,11 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { analyzeWallet } from '@/lib/analysis/engine';
 import { getCache, setCache } from '@/lib/utils/cache';
 import { requestDeduplicator } from '@/lib/utils/requestDeduplicator';
+import { handleAnalysis, performMaintenance, Env } from '@/lib/analysis/worker';
+
+export const runtime = 'edge';
 
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { wallet } = body;
+        const { wallet, email } = body;
 
         if (!wallet) {
             return NextResponse.json(
@@ -15,23 +18,60 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Check cache first (before deduplication to avoid race conditions)
+        // Get Cloudflare context for waitUntil
+        const ctx = (req as any).context;
+        const env = process.env as unknown as Env;
+
+        // 1. LAZY CLEANUP (Trigger maintenance max once every 24h)
+        if (ctx && env.REPORT_CACHE) {
+            ctx.waitUntil((async () => {
+                const lastCleanup = await env.REPORT_CACHE.get('LAST_CLEANUP_TS');
+                const now = Date.now();
+                if (!lastCleanup || (now - parseInt(lastCleanup)) > 86400000) {
+                    await performMaintenance(env);
+                    await env.REPORT_CACHE.put('LAST_CLEANUP_TS', now.toString());
+                }
+            })());
+        }
+
+        // 2. CACHE CHECK
         const cacheKey = `analysis_${wallet}`;
         const cachedResult = getCache(cacheKey);
         if (cachedResult) {
             console.log(`[API] Serving cached analysis for ${wallet}`);
+
+            // Still trigger email in background if provided
+            if (email && ctx && env.RESEND_API_KEY) {
+                ctx.waitUntil(handleAnalysis({
+                    id: `cached_${Date.now()}`,
+                    wallet,
+                    email,
+                    status: 'completed'
+                }, env));
+            }
+
             return NextResponse.json({ success: true, data: cachedResult, cached: true });
         }
 
-        // Deduplicate concurrent requests for the same wallet
+        // 3. FRESH ANALYSIS
         const result = await requestDeduplicator.deduplicate(
             `analyze_${wallet}`,
             async () => {
                 console.log(`[API] Starting fresh analysis for ${wallet}`);
                 const analysis = await analyzeWallet(wallet);
 
-                // Save to cache (1 hour)
+                // Save to internal cache
                 setCache(cacheKey, analysis, 3600);
+
+                // 4. BACKGROUND TASKS (D1 Save + Email)
+                if (ctx) {
+                    ctx.waitUntil(handleAnalysis({
+                        id: `live_${Date.now()}`,
+                        wallet,
+                        email,
+                        status: 'completed'
+                    }, env));
+                }
 
                 return analysis;
             }
