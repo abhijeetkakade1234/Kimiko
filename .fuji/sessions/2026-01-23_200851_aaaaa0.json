@@ -1,0 +1,491 @@
+{
+  "session_id": "2026-01-23_200851_aaaaa0",
+  "started_at": "2026-01-23T20:08:51.461563",
+  "status": "completed",
+  "files_requested": [
+    "package.json",
+    "pnpm-lock.yaml",
+    "src/app/analyze/[wallet]/page.tsx",
+    "src/app/api/analyze/route.ts",
+    "src/app/page.tsx",
+    "src/lib/analysis/engine.ts",
+    "src/lib/solana/client.ts",
+    "src/lib/solana/fetcher.ts",
+    "DEMO_TROUBLESHOOTING.md",
+    "DEVELOPER.md",
+    "RPC_RECOVERY_GUIDE.md",
+    "contracts/KimikoReputation.sol",
+    "sdk/package.json",
+    "sdk/src/client.ts",
+    "sdk/src/index.ts",
+    "sdk/tsconfig.json",
+    "src/app/api/score/[wallet]/route.ts",
+    "src/app/api/shield/route.ts",
+    "src/components/IncoShield.tsx",
+    "src/lib/demo/mock-data.ts",
+    "src/lib/inco/shield.ts",
+    "src/lib/utils/requestDeduplicator.ts"
+  ],
+  "files_completed": [],
+  "files_failed": [],
+  "events": [
+    {
+      "event_id": 1,
+      "timestamp": "2026-01-23T20:08:53.700469",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "package.json",
+      "status": "success"
+    },
+    {
+      "event_id": 2,
+      "timestamp": "2026-01-23T20:09:47.612860",
+      "event_type": "api_call",
+      "model": "gemma-3-12b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "pnpm-lock.yaml",
+      "status": "success"
+    },
+    {
+      "event_id": 3,
+      "timestamp": "2026-01-23T20:09:48.626243",
+      "event_type": "api_call",
+      "file": "pnpm-lock.yaml",
+      "project_id": "A",
+      "model": "gemma-3-12b-it",
+      "status": "rate_limited",
+      "latency_ms": 993,
+      "error_message": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.",
+      "api_key_prefix": "AIzaSyCEPrn7..."
+    },
+    {
+      "event_id": 4,
+      "timestamp": "2026-01-23T20:10:39.117011",
+      "event_type": "api_call",
+      "model": "gemma-3-12b-it",
+      "project_id": "B",
+      "tokens": 0,
+      "file": "pnpm-lock.yaml",
+      "status": "success"
+    },
+    {
+      "event_id": 5,
+      "timestamp": "2026-01-23T20:10:39.890140",
+      "event_type": "api_call",
+      "file": "pnpm-lock.yaml",
+      "project_id": "B",
+      "model": "gemma-3-12b-it",
+      "status": "rate_limited",
+      "latency_ms": 752,
+      "error_message": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.",
+      "api_key_prefix": "AIzaSyDzKDTB..."
+    },
+    {
+      "event_id": 6,
+      "timestamp": "2026-01-23T20:11:51.467040",
+      "event_type": "api_call",
+      "file": "pnpm-lock.yaml",
+      "project_id": "C",
+      "model": "gemma-3-12b-it",
+      "status": "error",
+      "latency_ms": 71542,
+      "error_message": "503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The model is overloaded. Please try again later.', 'status': 'UNAVAILABLE'}}",
+      "api_key_prefix": "AIzaSyDKvepq..."
+    },
+    {
+      "event_id": 7,
+      "timestamp": "2026-01-23T20:11:56.613788",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "pnpm-lock.yaml",
+      "status": "success"
+    },
+    {
+      "event_id": 8,
+      "timestamp": "2026-01-23T20:12:20.863997",
+      "event_type": "api_call",
+      "model": "gemma-3-12b-it",
+      "project_id": "C",
+      "tokens": 0,
+      "file": "pnpm-lock.yaml",
+      "status": "success"
+    },
+    {
+      "event_id": 9,
+      "timestamp": "2026-01-23T20:12:21.969480",
+      "event_type": "api_call",
+      "file": "pnpm-lock.yaml",
+      "project_id": "C",
+      "model": "gemma-3-12b-it",
+      "status": "rate_limited",
+      "latency_ms": 1053,
+      "error_message": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.",
+      "api_key_prefix": "AIzaSyDKvepq..."
+    },
+    {
+      "event_id": 10,
+      "timestamp": "2026-01-23T20:12:22.811469",
+      "event_type": "api_call",
+      "file": "pnpm-lock.yaml",
+      "project_id": "A",
+      "model": "gemma-3-1b-it",
+      "status": "rate_limited",
+      "latency_ms": 811,
+      "error_message": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.",
+      "api_key_prefix": "AIzaSyCEPrn7..."
+    },
+    {
+      "event_id": 11,
+      "timestamp": "2026-01-23T20:12:54.278933",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "B",
+      "tokens": 0,
+      "file": "pnpm-lock.yaml",
+      "status": "success"
+    },
+    {
+      "event_id": 12,
+      "timestamp": "2026-01-23T20:12:55.315653",
+      "event_type": "api_call",
+      "file": "pnpm-lock.yaml",
+      "project_id": "B",
+      "model": "gemma-3-1b-it",
+      "status": "rate_limited",
+      "latency_ms": 1018,
+      "error_message": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.",
+      "api_key_prefix": "AIzaSyDzKDTB..."
+    },
+    {
+      "event_id": 13,
+      "timestamp": "2026-01-23T20:13:25.458607",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "C",
+      "tokens": 0,
+      "file": "pnpm-lock.yaml",
+      "status": "success"
+    },
+    {
+      "event_id": 14,
+      "timestamp": "2026-01-23T20:13:56.147857",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "C",
+      "tokens": 0,
+      "file": "pnpm-lock.yaml",
+      "status": "success"
+    },
+    {
+      "event_id": 15,
+      "timestamp": "2026-01-23T20:14:00.644237",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "C",
+      "tokens": 0,
+      "file": "pnpm-lock.yaml",
+      "status": "success"
+    },
+    {
+      "event_id": 16,
+      "timestamp": "2026-01-23T20:14:31.056839",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "C",
+      "tokens": 0,
+      "file": "pnpm-lock.yaml",
+      "status": "success"
+    },
+    {
+      "event_id": 17,
+      "timestamp": "2026-01-23T20:14:31.809944",
+      "event_type": "api_call",
+      "file": "pnpm-lock.yaml",
+      "project_id": "C",
+      "model": "gemma-3-1b-it",
+      "status": "rate_limited",
+      "latency_ms": 733,
+      "error_message": "429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.",
+      "api_key_prefix": "AIzaSyDKvepq..."
+    },
+    {
+      "event_id": 18,
+      "timestamp": "2026-01-23T20:15:05.388068",
+      "event_type": "api_call",
+      "model": "gemma-3-27b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "pnpm-lock.yaml",
+      "status": "success"
+    },
+    {
+      "event_id": 19,
+      "timestamp": "2026-01-23T20:15:55.995344",
+      "event_type": "api_call",
+      "model": "gemma-3-12b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "pnpm-lock.yaml",
+      "status": "success"
+    },
+    {
+      "event_id": 20,
+      "timestamp": "2026-01-23T20:17:15.779988",
+      "event_type": "api_call",
+      "model": "gemma-3-12b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "src/app/analyze/[wallet]/page.tsx",
+      "status": "success"
+    },
+    {
+      "event_id": 21,
+      "timestamp": "2026-01-23T20:17:47.194047",
+      "event_type": "api_call",
+      "model": "gemma-3-12b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "src/app/api/analyze/route.ts",
+      "status": "success"
+    },
+    {
+      "event_id": 22,
+      "timestamp": "2026-01-23T20:18:13.893586",
+      "event_type": "api_call",
+      "model": "gemma-3-12b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "src/app/page.tsx",
+      "status": "success"
+    },
+    {
+      "event_id": 23,
+      "timestamp": "2026-01-23T20:18:16.897912",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "src/lib/analysis/engine.ts",
+      "status": "success"
+    },
+    {
+      "event_id": 24,
+      "timestamp": "2026-01-23T20:18:20.691732",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "src/lib/solana/client.ts",
+      "status": "success"
+    },
+    {
+      "event_id": 25,
+      "timestamp": "2026-01-23T20:19:14.413329",
+      "event_type": "api_call",
+      "model": "gemma-3-12b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "src/lib/solana/fetcher.ts",
+      "status": "success"
+    },
+    {
+      "event_id": 26,
+      "timestamp": "2026-01-23T20:19:18.481867",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "DEMO_TROUBLESHOOTING.md",
+      "status": "success"
+    },
+    {
+      "event_id": 27,
+      "timestamp": "2026-01-23T20:19:20.813169",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "DEVELOPER.md",
+      "status": "success"
+    },
+    {
+      "event_id": 28,
+      "timestamp": "2026-01-23T20:19:23.427186",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "RPC_RECOVERY_GUIDE.md",
+      "status": "success"
+    },
+    {
+      "event_id": 29,
+      "timestamp": "2026-01-23T20:19:26.193147",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "contracts/KimikoReputation.sol",
+      "status": "success"
+    },
+    {
+      "event_id": 30,
+      "timestamp": "2026-01-23T20:19:28.697418",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "sdk/package.json",
+      "status": "success"
+    },
+    {
+      "event_id": 31,
+      "timestamp": "2026-01-23T20:19:32.800095",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "sdk/src/client.ts",
+      "status": "success"
+    },
+    {
+      "event_id": 32,
+      "timestamp": "2026-01-23T20:19:34.705526",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "sdk/src/index.ts",
+      "status": "success"
+    },
+    {
+      "event_id": 33,
+      "timestamp": "2026-01-23T20:19:37.694816",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "sdk/tsconfig.json",
+      "status": "success"
+    },
+    {
+      "event_id": 34,
+      "timestamp": "2026-01-23T20:19:42.302994",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "src/app/api/score/[wallet]/route.ts",
+      "status": "success"
+    },
+    {
+      "event_id": 35,
+      "timestamp": "2026-01-23T20:19:45.064764",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "src/app/api/shield/route.ts",
+      "status": "success"
+    },
+    {
+      "event_id": 36,
+      "timestamp": "2026-01-23T20:19:48.501391",
+      "event_type": "api_call",
+      "file": "src/components/IncoShield.tsx",
+      "project_id": "A",
+      "model": "gemma-3-12b-it",
+      "status": "error",
+      "latency_ms": 3411,
+      "error_message": "503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The model is overloaded. Please try again later.', 'status': 'UNAVAILABLE'}}",
+      "api_key_prefix": "AIzaSyCEPrn7..."
+    },
+    {
+      "event_id": 37,
+      "timestamp": "2026-01-23T20:20:35.980104",
+      "event_type": "api_call",
+      "file": "src/components/IncoShield.tsx",
+      "project_id": "B",
+      "model": "gemma-3-12b-it",
+      "status": "error",
+      "latency_ms": 47457,
+      "error_message": "503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The model is overloaded. Please try again later.', 'status': 'UNAVAILABLE'}}",
+      "api_key_prefix": "AIzaSyDzKDTB..."
+    },
+    {
+      "event_id": 38,
+      "timestamp": "2026-01-23T20:20:38.911792",
+      "event_type": "api_call",
+      "file": "src/components/IncoShield.tsx",
+      "project_id": "C",
+      "model": "gemma-3-12b-it",
+      "status": "error",
+      "latency_ms": 2912,
+      "error_message": "503 UNAVAILABLE. {'error': {'code': 503, 'message': 'The model is overloaded. Please try again later.', 'status': 'UNAVAILABLE'}}",
+      "api_key_prefix": "AIzaSyDKvepq..."
+    },
+    {
+      "event_id": 39,
+      "timestamp": "2026-01-23T20:20:42.853089",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "src/components/IncoShield.tsx",
+      "status": "success"
+    },
+    {
+      "event_id": 40,
+      "timestamp": "2026-01-23T20:21:14.852549",
+      "event_type": "api_call",
+      "model": "gemma-3-12b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "src/lib/demo/mock-data.ts",
+      "status": "success"
+    },
+    {
+      "event_id": 41,
+      "timestamp": "2026-01-23T20:21:17.296954",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "src/lib/inco/shield.ts",
+      "status": "success"
+    },
+    {
+      "event_id": 42,
+      "timestamp": "2026-01-23T20:21:47.275706",
+      "event_type": "api_call",
+      "model": "gemma-3-1b-it",
+      "project_id": "A",
+      "tokens": 0,
+      "file": "src/lib/utils/requestDeduplicator.ts",
+      "status": "success"
+    }
+  ],
+  "summary": {
+    "total_api_calls": 42,
+    "success_count": 32,
+    "rate_limited_count": 6,
+    "error_count": 4,
+    "projects_used": {
+      "A": 28,
+      "B": 5,
+      "C": 9
+    },
+    "models_used": {
+      "gemma-3-1b-it": 25,
+      "gemma-3-12b-it": 16,
+      "gemma-3-27b-it": 1
+    },
+    "total_latency_ms": 130682
+  },
+  "ended_at": "2026-01-23T20:21:47.282462"
+}
