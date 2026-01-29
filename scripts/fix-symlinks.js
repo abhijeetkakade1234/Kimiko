@@ -74,12 +74,28 @@ if (fs.existsSync(workerPath)) {
 // Check for assets directory
 const assetsDir = path.join(buildDir, 'assets');
 if (fs.existsSync(assetsDir)) {
-    console.log(`[Fix] Assets directory found. Checking for index.html...`);
-    const indexPath = path.join(assetsDir, 'index.html');
-    if (fs.existsSync(indexPath)) {
-        console.log(`[Fix] Found index.html in assets. Copying to root for 404 safety...`);
-        fs.copyFileSync(indexPath, path.join(buildDir, 'index.html'));
+    console.log(`[Fix] Assets directory found. Flattening all assets to root...`);
+    
+    function moveDirRecursive(src, dest) {
+        if (!fs.existsSync(src)) return;
+        if (!fs.existsSync(dest)) fs.mkdirSync(dest, { recursive: true });
+        
+        const entries = fs.readdirSync(src, { withFileTypes: true });
+        for (const entry of entries) {
+            const srcPath = path.join(src, entry.name);
+            const destPath = path.join(dest, entry.name);
+            
+            if (entry.isDirectory()) {
+                moveDirRecursive(srcPath, destPath);
+            } else {
+                console.log(`[Fix] Moving asset: ${entry.name}`);
+                fs.renameSync(srcPath, destPath);
+            }
+        }
     }
+    
+    moveDirRecursive(assetsDir, buildDir);
+    console.log(`[Fix] Finished flattening assets.`);
 }
 
 console.log(`[Fix] Finished symbols check & routing preparation.`);
