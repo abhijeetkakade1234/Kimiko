@@ -6,12 +6,12 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "kimiko-db"
-database_id = "f67b407b-5c8e-4a6c-9c7a-5b8e9d6c7a4b"
+database_id = "ad5c5858-8bfa-4090-8503-b9cc7ed51af8"
 
 # KV Namespace for lightweight caching
 [[kv_namespaces]]
 binding = "REPORT_CACHE"
-id = "a8c903530e3848b6a3862cd5fbe1a208"
+id = "2f5ecab4ffd74632812b6e4fa1afef3b"
 
 # Cron Triggers for cleanup
 [triggers]
