@@ -1,0 +1,54 @@
+{
+    "version": "1.0.0",
+    "lastUpdated": "2026-01-21T00:00:00Z",
+    "categories": {
+        "exchanges": [
+            {
+                "address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                "label": "Binance Hot Wallet",
+                "confidence": 1.0,
+                "source": "public_label"
+            },
+            {
+                "address": "H8UekPGwePSmQ3ttuYGPU1szyFfjZR4N53rymSFwpLPm",
+                "label": "Coinbase Deposit",
+                "confidence": 0.95,
+                "source": "community_verified"
+            },
+            {
+                "address": "5tzCnkK7SETVSbk1S8GPVucTf7el5Scy7769N6AAm9C6",
+                "label": "Kraken",
+                "confidence": 1.0,
+                "source": "public_label"
+            }
+        ],
+        "bridges": [
+            {
+                "address": "wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb",
+                "label": "Wormhole Bridge",
+                "confidence": 1.0,
+                "source": "official"
+            },
+            {
+                "address": "66f39Gpk5i6Q9Fz3v8v9rF5uXvJp8y8y8y8y8y8y8y8y",
+                "label": "Allbridge",
+                "confidence": 1.0,
+                "source": "official"
+            }
+        ],
+        "defi_protocols": [
+            {
+                "address": "JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4",
+                "label": "Jupiter Aggregator",
+                "confidence": 1.0,
+                "source": "official"
+            },
+            {
+                "address": "Eir63C1Y8f4L6X9uXvJp8y8y8y8y8y8y8y8y8y8y8y8",
+                "label": "Raydium",
+                "confidence": 1.0,
+                "source": "official"
+            }
+        ]
+    }
+}
