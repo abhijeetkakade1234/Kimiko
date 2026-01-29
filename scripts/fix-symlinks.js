@@ -113,4 +113,22 @@ if (fs.existsSync(path.join(buildDir, '_next'))) {
     console.error(`[Fix] CRITICAL: _next static directory MISSING from root!`);
 }
 
+// Check for CSS files
+const cssDir = path.join(buildDir, '_next', 'static', 'css');
+if (fs.existsSync(cssDir)) {
+    const cssFiles = fs.readdirSync(cssDir);
+    console.log(`[Fix] CSS files found in _next/static/css:`, cssFiles);
+} else {
+    console.error(`[Fix] CRITICAL: No CSS directory found at ${cssDir}!`);
+}
+
+// Generate _routes.json to bypass worker for static assets
+const routesConfig = {
+    version: 1,
+    include: ["/*"],
+    exclude: ["/_next/static/*", "/favicon.ico", "/logo.svg", "/vercel.svg"]
+};
+fs.writeFileSync(path.join(buildDir, '_routes.json'), JSON.stringify(routesConfig, null, 2));
+console.log(`[Fix] Generated _routes.json to exclude static assets from worker.`);
+
 console.log(`[Fix] Finished symbols check & routing preparation.`);
