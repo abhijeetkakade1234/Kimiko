@@ -25,6 +25,8 @@
     "viem": "^2.44.4"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260129.0",
+    "@opennextjs/cloudflare": "^1.16.1",
     "@tailwindcss/postcss": "^4",
     "@types/d3": "^7.4.3",
     "@types/node": "^20",
