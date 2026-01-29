@@ -117,7 +117,16 @@ export const DEMO_WALLETS: Record<string, WalletAnalysis> = {
             accountAge: 45 * 24 * 60 * 60 * 1000,
             dataSource: 'helius',
             processingTime: 85,
-            transactions: []
+            transactions: [
+                {
+                    signature: 'demo_sig_dex_1',
+                    timestamp: Date.now() - 5000000,
+                    slot: 2849100,
+                    type: 'swap',
+                    counterparties: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'],
+                    programs: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4']
+                }
+            ]
         }
     },
 
@@ -162,7 +171,40 @@ export const DEMO_WALLETS: Record<string, WalletAnalysis> = {
             accountAge: 120 * 24 * 60 * 60 * 1000,
             dataSource: 'helius',
             processingTime: 156,
-            transactions: []
+            transactions: [
+                {
+                    signature: 'demo_sig_dex_1',
+                    timestamp: Date.now() - 5000000,
+                    slot: 2849100,
+                    type: 'swap',
+                    counterparties: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'],
+                    programs: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4']
+                },
+                {
+                    signature: 'demo_sig_dex_2',
+                    timestamp: Date.now() - 5000000,
+                    slot: 2849100,
+                    type: 'swap',
+                    counterparties: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'],
+                    programs: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4']
+                },
+                {
+                    signature: 'demo_sig_dex_3',
+                    timestamp: Date.now() - 5000000,
+                    slot: 2849100,
+                    type: 'swap',
+                    counterparties: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'],
+                    programs: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4']
+                },
+                {
+                    signature: 'demo_sig_dex_4',
+                    timestamp: Date.now() - 5000000,
+                    slot: 2849100,
+                    type: 'swap',
+                    counterparties: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'],
+                    programs: ['JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4']
+                }
+            ]
         }
     }
 };
