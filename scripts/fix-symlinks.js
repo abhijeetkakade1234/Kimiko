@@ -59,4 +59,27 @@ function fixSymlinks(dir) {
 const buildDir = path.resolve(process.cwd(), '.open-next');
 console.log(`[Fix] Scanning for symlinks in ${buildDir}...`);
 fixSymlinks(buildDir);
-console.log(`[Fix] Finished symbols check.`);
+
+// ENSURE CLOUDFLARE PAGES ROUTING
+const workerPath = path.join(buildDir, 'worker.js');
+const targetWorkerPath = path.join(buildDir, '_worker.js');
+
+if (fs.existsSync(workerPath)) {
+    console.log(`[Fix] Renaming worker.js to _worker.js for Pages compatibility...`);
+    fs.renameSync(workerPath, targetWorkerPath);
+} else if (!fs.existsSync(targetWorkerPath)) {
+    console.error(`[Fix] CRITICAL: No worker entry point found in .open-next!`);
+}
+
+// Check for assets directory
+const assetsDir = path.join(buildDir, 'assets');
+if (fs.existsSync(assetsDir)) {
+    console.log(`[Fix] Assets directory found. Checking for index.html...`);
+    const indexPath = path.join(assetsDir, 'index.html');
+    if (fs.existsSync(indexPath)) {
+        console.log(`[Fix] Found index.html in assets. Copying to root for 404 safety...`);
+        fs.copyFileSync(indexPath, path.join(buildDir, 'index.html'));
+    }
+}
+
+console.log(`[Fix] Finished symbols check & routing preparation.`);
