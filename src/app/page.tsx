@@ -25,7 +25,7 @@ export default function LandingPage() {
         body: JSON.stringify({ wallet, email }),
       });
 
-      const data = await resp.json();
+      const data = (await resp.json()) as { success: boolean; error?: string };
 
       if (data.success) {
         setQueued(true);
