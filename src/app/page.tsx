@@ -8,15 +8,36 @@ import Link from 'next/link';
 
 export default function LandingPage() {
   const [wallet, setWallet] = useState('');
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const [queued, setQueued] = useState(false);
   const router = useRouter();
 
-  const handleAnalyze = (e: React.FormEvent) => {
+  const handleAnalyze = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!wallet) return;
+    if (!wallet || !email) return;
     setLoading(true);
-    // Navigation to analysis view
-    router.push(`/analyze/${wallet}`);
+
+    try {
+      const resp = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ wallet, email }),
+      });
+
+      const data = await resp.json();
+
+      if (data.success) {
+        setQueued(true);
+      } else {
+        alert(data.error || 'Failed to queue analysis');
+      }
+    } catch (err) {
+      console.error('Failed to analyze:', err);
+      alert('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -91,64 +112,110 @@ export default function LandingPage() {
           Zen-grade risk assessment through the lens of <span className="text-primary italic">Selective Visibility</span>.
         </p>
 
-        {/* Input Form */}
-        <form onSubmit={handleAnalyze} className="relative w-full max-w-2xl mx-auto mb-16">
-          <div className="glass p-2 flex items-center gap-2 focus-within:ring-2 ring-primary/50 transition-all duration-300 rounded-2xl overflow-hidden">
-            <div className="pl-4 text-white/40">
-              <Search className="w-6 h-6" />
-            </div>
-            <input
-              type="text"
-              placeholder="Enter Solana Wallet Address..."
-              className="w-full bg-transparent border-none focus:ring-0 text-lg py-4 px-2 outline-none text-white placeholder:text-white/20"
-              value={wallet}
-              onChange={(e) => setWallet(e.target.value)}
-              disabled={loading}
-            />
-            <button
-              type="submit"
-              disabled={loading || !wallet}
-              className="shimmer-btn bg-primary hover:bg-primary/80 disabled:opacity-50 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95 whitespace-nowrap"
+        <AnimatePresence mode="wait">
+          {!queued ? (
+            <motion.form
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              onSubmit={handleAnalyze}
+              className="relative w-full max-w-2xl mx-auto mb-16"
             >
-              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Analyze Now'}
-              {!loading && <ChevronRight className="w-5 h-5" />}
-            </button>
-          </div>
+              <div className="glass p-2 flex flex-col gap-2 focus-within:ring-2 ring-primary/50 transition-all duration-300 rounded-2xl overflow-hidden">
+                <div className="flex items-center gap-2 border-b border-white/5 pb-1">
+                  <div className="pl-4 text-white/40">
+                    <Search className="w-5 h-5" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Solana Wallet Address..."
+                    className="w-full bg-transparent border-none focus:ring-0 text-base py-3 px-2 outline-none text-white placeholder:text-white/20"
+                    value={wallet}
+                    onChange={(e) => setWallet(e.target.value)}
+                    disabled={loading}
+                  />
+                </div>
 
-          <div className="mt-8 flex flex-col items-center gap-6">
-            <div className="flex flex-wrap justify-center gap-6 text-[10px] text-white/30 font-bold uppercase tracking-widest">
-              <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-secondary" />
-                <span>Zero KYC</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <EyeOff className="w-4 h-4 text-primary" />
-                <span>Private Engine</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center gap-3">
-              <span className="text-[10px] text-white/20 uppercase tracking-[0.3em] font-bold underline decoration-primary/30">Test the System</span>
-              <div className="flex flex-wrap justify-center gap-3">
-                {[
-                  { label: '🟢', addr: 'Gv6H5r6X7Hn9pQx7R9mK2z1vA8n3L9pQx7R9mK2z1vA8' },
-                  { label: '🟡', addr: '3z9vKArfBvUpNcAsrE2HjS2mQ2z1vA8n3L9pQx7R9mK2' },
-                  { label: '🔴', addr: 'Hv4KArfBvUpNcAsrE2HjS2mQ2z1vA8n3L9pQx7R9mK2z1vA8n3L9pQx7R9mK2z' }
-                ].map((sample) => (
+                <div className="flex items-center gap-2">
+                  <div className="pl-4 text-white/40">
+                    <Sparkles className="w-5 h-5 text-secondary" />
+                  </div>
+                  <input
+                    type="email"
+                    placeholder="Your Email (for report delivery)..."
+                    className="w-full bg-transparent border-none focus:ring-0 text-base py-3 px-2 outline-none text-white placeholder:text-white/20"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={loading}
+                    required
+                  />
                   <button
-                    key={sample.addr}
-                    type="button"
-                    onClick={() => setWallet(sample.addr)}
-                    className="glass px-4 py-2 hover:bg-white/10 transition-all text-[11px] font-mono text-white/40 hover:text-white flex items-center gap-2 rounded-lg"
+                    type="submit"
+                    disabled={loading || !wallet || !email}
+                    className="shimmer-btn bg-primary hover:bg-primary/80 disabled:opacity-50 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95 whitespace-nowrap"
                   >
-                    <span>{sample.label}</span>
-                    {sample.addr.slice(0, 4)}...{sample.addr.slice(-4)}
+                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Analyze Now'}
+                    {!loading && <ChevronRight className="w-5 h-5" />}
                   </button>
-                ))}
+                </div>
               </div>
-            </div>
-          </div>
-        </form>
+
+              <div className="mt-8 flex flex-col items-center gap-6">
+                <div className="flex flex-wrap justify-center gap-6 text-[10px] text-white/30 font-bold uppercase tracking-widest">
+                  <div className="flex items-center gap-2">
+                    <Lock className="w-4 h-4 text-secondary" />
+                    <span>Background Processing</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <EyeOff className="w-4 h-4 text-primary" />
+                    <span>Encrypted Report</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center gap-3">
+                  <span className="text-[10px] text-white/20 uppercase tracking-[0.3em] font-bold underline decoration-primary/30">Select Wallet</span>
+                  <div className="flex flex-wrap justify-center gap-3">
+                    {[
+                      { label: '🟢', addr: 'Gv6H5r6X7Hn9pQx7R9mK2z1vA8n3L9pQx7R9mK2z1vA8' },
+                      { label: '🟡', addr: '3z9vKArfBvUpNcAsrE2HjS2mQ2z1vA8n3L9pQx7R9mK2' },
+                      { label: '🔴', addr: 'Hv4KArfBvUpNcAsrE2HjS2mQ2z1vA8n3L9pQx7R9mK2z' }
+                    ].map((sample) => (
+                      <button
+                        key={sample.addr}
+                        type="button"
+                        onClick={() => setWallet(sample.addr)}
+                        className="glass px-4 py-1.5 hover:bg-white/10 transition-all text-[11px] font-mono text-white/40 hover:text-white flex items-center gap-2 rounded-lg"
+                      >
+                        {sample.addr.slice(0, 4)}...{sample.addr.slice(-4)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.form>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="w-full max-w-2xl mx-auto mb-16 glass p-12 text-center border-primary/20 bg-primary/5"
+            >
+              <div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6">
+                <Sparkles className="w-10 h-10 text-primary" />
+              </div>
+              <h2 className="text-3xl font-black mb-4 uppercase italic tracking-tighter">Analysis Queued!</h2>
+              <p className="text-white/60 mb-8 leading-relaxed">
+                We've started scanning the Solana blockchain for <code>{wallet.slice(0, 8)}...</code>.
+                Your privacy report will be sent to <strong>{email}</strong> within 5-10 minutes.
+              </p>
+              <button
+                onClick={() => setQueued(false)}
+                className="text-primary font-bold uppercase tracking-widest text-[11px] hover:underline"
+              >
+                ← Analyze another wallet
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Track 2 Section */}
         <div className="w-full max-w-2xl mx-auto glass p-8 border-primary/20 bg-primary/5 text-center mb-32 relative overflow-hidden group">
