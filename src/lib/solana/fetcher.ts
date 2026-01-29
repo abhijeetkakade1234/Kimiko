@@ -1,5 +1,5 @@
 import { ConfirmedSignatureInfo, ParsedTransactionWithMeta, PublicKey } from '@solana/web3.js';
-import { connection, batchConnection, rotateRPC, rotateBatchRPC, refreshConnection, refreshBatchConnection } from './client';
+import { getConnection, getBatchConnection, rotateRPC, rotateBatchRPC, refreshConnection, refreshBatchConnection } from './client';
 import { getCache, setCache } from '../utils/cache';
 
 export interface FetchOptions {
@@ -66,7 +66,7 @@ export const fetchTransactionSignatures = async (
 ): Promise<ConfirmedSignatureInfo[]> => {
     const pubkey = new PublicKey(walletAddress);
     // Use primary connection (can be Helius) for signature fetching - not a batch operation
-    return await withRetry(() => connection.getSignaturesForAddress(pubkey, {
+    return await withRetry(() => getConnection().getSignaturesForAddress(pubkey, {
         limit: options.limit,
         before: options.before,
         until: options.until,
@@ -79,7 +79,7 @@ export const fetchTransactionDetails = async (
     if (signatures.length === 0) return [];
 
     // Use batchConnection (Ankr) for batch operations to avoid Helius free tier limitations
-    return await withRetry(() => batchConnection.getParsedTransactions(signatures, {
+    return await withRetry(() => getBatchConnection().getParsedTransactions(signatures, {
         maxSupportedTransactionVersion: 0,
         commitment: 'confirmed',
     }), 5, true);

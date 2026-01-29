@@ -69,15 +69,30 @@ export const rotateBatchRPC = () => {
     return new Connection(newRPC, 'confirmed');
 };
 
+// Lazy singleton instances
+let connectionInstance: Connection | null = null;
+let batchConnectionInstance: Connection | null = null;
+
 // Primary connection (can use Helius for signature fetching)
-export let connection = new Connection(getCurrentRPC(), 'confirmed');
+export const getConnection = () => {
+    if (!connectionInstance) {
+        connectionInstance = new Connection(getCurrentRPC(), 'confirmed');
+    }
+    return connectionInstance;
+};
 
 // Separate connection for batch operations (uses Ankr, not Helius free tier)
-export let batchConnection = new Connection(getBatchRPC(), 'confirmed');
+export const getBatchConnection = () => {
+    if (!batchConnectionInstance) {
+        batchConnectionInstance = new Connection(getBatchRPC(), 'confirmed');
+    }
+    return batchConnectionInstance;
+};
 
 export const checkConnection = async () => {
     try {
-        const slot = await connection.getSlot();
+        const conn = getConnection();
+        const slot = await conn.getSlot();
         return { success: true, slot };
     } catch (err) {
         console.error('Solana RPC Connection Error:', err);
@@ -87,11 +102,11 @@ export const checkConnection = async () => {
 
 // Utility to refresh connection (useful after rotation)
 export const refreshConnection = () => {
-    connection = new Connection(getCurrentRPC(), 'confirmed');
-    return connection;
+    connectionInstance = new Connection(getCurrentRPC(), 'confirmed');
+    return connectionInstance;
 };
 
 export const refreshBatchConnection = () => {
-    batchConnection = new Connection(getBatchRPC(), 'confirmed');
-    return batchConnection;
+    batchConnectionInstance = new Connection(getBatchRPC(), 'confirmed');
+    return batchConnectionInstance;
 };
