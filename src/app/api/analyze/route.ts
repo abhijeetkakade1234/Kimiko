@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
         console.error('API Error:', error);
         return NextResponse.json(
             { success: false, error: error.message || 'Internal Server Error' },
-            { status: 500 }
+            { status: 500, headers: { 'x-error-message': error.message } }
         );
     }
 }

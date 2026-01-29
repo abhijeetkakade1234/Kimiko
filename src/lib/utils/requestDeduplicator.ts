@@ -11,7 +11,7 @@ type PendingRequest<T> = {
 class RequestDeduplicator {
     private pending = new Map<string, PendingRequest<any>>();
     private readonly TTL = 60000; // 60 seconds max cache for pending requests
-    private cleanupInterval: NodeJS.Timeout | null = null;
+    private cleanupInterval: any | null = null;
     private readonly CLEANUP_INTERVAL = 30000; // Clean up every 30 seconds
 
     constructor() {
