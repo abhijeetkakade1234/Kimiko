@@ -74,7 +74,10 @@ if (fs.existsSync(workerPath)) {
 // Check for assets directory
 const assetsDir = path.join(buildDir, 'assets');
 if (fs.existsSync(assetsDir)) {
-    console.log(`[Fix] Assets directory found. Flattening all assets to root...`);
+    console.log(`[Fix] Assets directory found.`);
+    console.log(`[Fix] Contents of ${assetsDir}:`, fs.readdirSync(assetsDir));
+    
+    console.log(`[Fix] Flattening all assets to root...`);
     
     function moveDirRecursive(src, dest) {
         if (!fs.existsSync(src)) return;
@@ -88,14 +91,26 @@ if (fs.existsSync(assetsDir)) {
             if (entry.isDirectory()) {
                 moveDirRecursive(srcPath, destPath);
             } else {
-                console.log(`[Fix] Moving asset: ${entry.name}`);
-                fs.renameSync(srcPath, destPath);
+                // simple Copy instead of Rename to avoid potential locking/permission issues
+                fs.copyFileSync(srcPath, destPath);
+                // Try to remove source to verify move, but ignore errors
+                try { fs.unlinkSync(srcPath); } catch (e) {}
             }
         }
     }
     
     moveDirRecursive(assetsDir, buildDir);
     console.log(`[Fix] Finished flattening assets.`);
+} else {
+    console.warn(`[Fix] WARNING: No assets directory found at ${assetsDir}`);
+}
+
+// Final Structure Check
+console.log(`[Fix] Final root contents of .open-next:`, fs.readdirSync(buildDir));
+if (fs.existsSync(path.join(buildDir, '_next'))) {
+    console.log(`[Fix] SUCCESS: _next static directory found in root.`);
+} else {
+    console.error(`[Fix] CRITICAL: _next static directory MISSING from root!`);
 }
 
 console.log(`[Fix] Finished symbols check & routing preparation.`);
