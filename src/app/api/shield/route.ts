@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
     try {
-        const { wallet, encryptedScore } = await req.json();
+        const { wallet, encryptedScore } = (await req.json()) as { wallet: string; encryptedScore: string };
 
         // In a real implementation:
         // 1. Verify the request comes from an authenticated Kimiko session

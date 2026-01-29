@@ -8,7 +8,7 @@ export const runtime = 'edge';
 
 export async function POST(req: NextRequest) {
     try {
-        const body = await req.json();
+        const body = (await req.json()) as { wallet?: string; email?: string };
         const { wallet, email } = body;
 
         if (!wallet) {
