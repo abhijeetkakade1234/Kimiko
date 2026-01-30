@@ -3,6 +3,7 @@ import { analyzeWallet } from '@/lib/analysis/engine';
 import { getCache, setCache } from '@/lib/utils/cache';
 import { requestDeduplicator } from '@/lib/utils/requestDeduplicator';
 import { handleAnalysis, performMaintenance, Env } from '@/lib/analysis/worker';
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const runtime = 'edge';
 
@@ -19,8 +20,18 @@ export async function POST(req: NextRequest) {
         }
 
         // Get Cloudflare context for waitUntil
-        const ctx = (req as any).context;
-        const env = process.env as unknown as Env;
+        let env: Env;
+        let ctx: ExecutionContext | undefined;
+
+        try {
+            const cf = await getCloudflareContext({ async: true });
+            env = cf.env as unknown as Env;
+            ctx = cf.ctx;
+        } catch (err) {
+            // Fallback for non-Cloudflare environments (e.g. local dev without emulation)
+            env = process.env as unknown as Env;
+            ctx = (req as any).context;
+        }
 
         // 1. LAZY CLEANUP (Trigger maintenance max once every 24h)
         if (ctx && env.REPORT_CACHE) {

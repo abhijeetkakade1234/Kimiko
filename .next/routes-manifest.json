@@ -28,6 +28,14 @@
         "nxtPwallet": "nxtPwallet"
       },
       "namedRegex": "^/analyze/(?<nxtPwallet>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/score/[wallet]",
+      "regex": "^/api/score/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPwallet": "nxtPwallet"
+      },
+      "namedRegex": "^/api/score/(?<nxtPwallet>[^/]+?)(?:/)?$"
     }
   ],
   "staticRoutes": [

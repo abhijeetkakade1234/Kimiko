@@ -3,6 +3,7 @@
   "/_not-found/page": "/_not-found",
   "/analyze/[wallet]/page": "/analyze/[wallet]",
   "/api/analyze/route": "/api/analyze",
+  "/api/score/[wallet]/route": "/api/score/[wallet]",
   "/api/shield/route": "/api/shield",
   "/docs/page": "/docs",
   "/favicon.ico/route": "/favicon.ico",
