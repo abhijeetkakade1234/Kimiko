@@ -18,18 +18,28 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Get Cloudflare context for waitUntil
+        // Get Cloudflare context and environment
         const ctx = (req as any).context;
-        const env = process.env as unknown as Env;
+        // In OpenNext/Cloudflare, bindings are in req.context.cloudflare.env
+        const cfEnv = ctx?.cloudflare?.env || ctx?.env;
+        const env = (cfEnv || process.env) as unknown as Env;
 
-        // 1. LAZY CLEANUP (Trigger maintenance max once every 24h)
+        if (!env.DB || !env.REPORT_CACHE) {
+            console.error('Missing Cloudflare Bindings:', { hasDB: !!env.DB, hasKV: !!env.REPORT_CACHE });
+        }
+
+        // 1. Perform maintenance (delete old reports/jobs)
         if (ctx && env.REPORT_CACHE) {
             ctx.waitUntil((async () => {
-                const lastCleanup = await env.REPORT_CACHE.get('LAST_CLEANUP_TS');
-                const now = Date.now();
-                if (!lastCleanup || (now - parseInt(lastCleanup)) > 86400000) {
-                    await performMaintenance(env);
-                    await env.REPORT_CACHE.put('LAST_CLEANUP_TS', now.toString());
+                try {
+                    const lastCleanup = await env.REPORT_CACHE.get('LAST_CLEANUP_TS');
+                    const now = Date.now();
+                    if (!lastCleanup || (now - parseInt(lastCleanup)) > 86400000) {
+                        await performMaintenance(env);
+                        await env.REPORT_CACHE.put('LAST_CLEANUP_TS', now.toString());
+                    }
+                } catch (e) {
+                    console.error('Maintenance task failed:', e);
                 }
             })());
         }
