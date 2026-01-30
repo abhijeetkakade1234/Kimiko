@@ -129,7 +129,7 @@ async function sendResendEmail(email: string, result: WalletAnalysis, apiKey: st
             'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-            from: 'Kimiko <no-reply@kimiko.pages.dev>',
+            from: 'Kimiko <onboarding@resend.dev>',
             to: [email],
             subject: `Kimiko Privacy Report: ${result.privacyScore}/100`,
             html: html
