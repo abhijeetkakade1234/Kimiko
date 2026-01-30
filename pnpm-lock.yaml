@@ -11,6 +11,9 @@ importers:
       '@inco/js':
         specifier: 0.8.0-devnet-3
         version: 0.8.0-devnet-3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.5)
+      '@opennextjs/cloudflare':
+        specifier: ^1.16.1
+        version: 1.16.1(next@16.1.4(@babel/core@7.28.6)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(wrangler@4.61.1(@cloudflare/workers-types@4.20260129.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10))
       '@solana/web3.js':
         specifier: ^1.98.4
         version: 1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
@@ -48,9 +51,6 @@ importers:
       '@cloudflare/workers-types':
         specifier: ^4.20260129.0
         version: 4.20260129.0
-      '@opennextjs/cloudflare':
-        specifier: ^1.16.1
-        version: 1.16.1(next@16.1.4(@babel/core@7.28.6)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(wrangler@4.61.1(@cloudflare/workers-types@4.20260129.0)(bufferutil@4.1.0)(utf-8-validate@5.0.10))
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.1.18

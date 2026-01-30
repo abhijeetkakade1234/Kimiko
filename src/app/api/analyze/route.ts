@@ -3,6 +3,7 @@ import { analyzeWallet } from '@/lib/analysis/engine';
 import { getCache, setCache } from '@/lib/utils/cache';
 import { requestDeduplicator } from '@/lib/utils/requestDeduplicator';
 import { handleAnalysis, performMaintenance, Env } from '@/lib/analysis/worker';
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const runtime = 'edge';
 
@@ -18,28 +19,28 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Get Cloudflare context and environment
-        const ctx = (req as any).context;
-        // In OpenNext/Cloudflare, bindings are in req.context.cloudflare.env
-        const cfEnv = ctx?.cloudflare?.env || ctx?.env;
-        const env = (cfEnv || process.env) as unknown as Env;
+        // Get Cloudflare context for waitUntil
+        let env: Env;
+        let ctx: ExecutionContext | undefined;
 
-        if (!env.DB || !env.REPORT_CACHE) {
-            console.error('Missing Cloudflare Bindings:', { hasDB: !!env.DB, hasKV: !!env.REPORT_CACHE });
+        try {
+            const cf = await getCloudflareContext({ async: true });
+            env = cf.env as unknown as Env;
+            ctx = cf.ctx;
+        } catch (err) {
+            // Fallback for non-Cloudflare environments (e.g. local dev without emulation)
+            env = process.env as unknown as Env;
+            ctx = (req as any).context;
         }
 
-        // 1. Perform maintenance (delete old reports/jobs)
+        // 1. LAZY CLEANUP (Trigger maintenance max once every 24h)
         if (ctx && env.REPORT_CACHE) {
             ctx.waitUntil((async () => {
-                try {
-                    const lastCleanup = await env.REPORT_CACHE.get('LAST_CLEANUP_TS');
-                    const now = Date.now();
-                    if (!lastCleanup || (now - parseInt(lastCleanup)) > 86400000) {
-                        await performMaintenance(env);
-                        await env.REPORT_CACHE.put('LAST_CLEANUP_TS', now.toString());
-                    }
-                } catch (e) {
-                    console.error('Maintenance task failed:', e);
+                const lastCleanup = await env.REPORT_CACHE.get('LAST_CLEANUP_TS');
+                const now = Date.now();
+                if (!lastCleanup || (now - parseInt(lastCleanup)) > 86400000) {
+                    await performMaintenance(env);
+                    await env.REPORT_CACHE.put('LAST_CLEANUP_TS', now.toString());
                 }
             })());
         }
