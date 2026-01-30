@@ -69,6 +69,7 @@ if (fs.existsSync(workerPath)) {
     fs.renameSync(workerPath, targetWorkerPath);
 } else if (!fs.existsSync(targetWorkerPath)) {
     console.error(`[Fix] CRITICAL: No worker entry point found in .open-next!`);
+    // Do not exit, just log (unless we want to enforce it)
 }
 
 // Check for assets directory
@@ -111,15 +112,33 @@ if (fs.existsSync(path.join(buildDir, '_next'))) {
     console.log(`[Fix] SUCCESS: _next static directory found in root.`);
 } else {
     console.error(`[Fix] CRITICAL: _next static directory MISSING from root!`);
+    process.exit(1); // Exit with error if this critical requirement is missing
 }
 
-// Check for CSS files
+// Check for CSS files (handling Turbopack/Next.js variations)
 const cssDir = path.join(buildDir, '_next', 'static', 'css');
+const chunksDir = path.join(buildDir, '_next', 'static', 'chunks');
+let cssFound = false;
+
 if (fs.existsSync(cssDir)) {
-    const cssFiles = fs.readdirSync(cssDir);
-    console.log(`[Fix] CSS files found in _next/static/css:`, cssFiles);
-} else {
-    console.error(`[Fix] CRITICAL: No CSS directory found at ${cssDir}!`);
+    const cssFiles = fs.readdirSync(cssDir).filter(f => f.endsWith('.css'));
+    if (cssFiles.length > 0) {
+        console.log(`[Fix] CSS files found in _next/static/css:`, cssFiles);
+        cssFound = true;
+    }
+}
+
+if (!cssFound && fs.existsSync(chunksDir)) {
+    const chunkFiles = fs.readdirSync(chunksDir).filter(f => f.endsWith('.css'));
+    if (chunkFiles.length > 0) {
+        console.log(`[Fix] CSS files found in _next/static/chunks:`, chunkFiles);
+        cssFound = true;
+    }
+}
+
+if (!cssFound) {
+    console.warn(`[Fix] WARNING: No CSS files found in standard locations. Styles may be missing.`);
+    // Don't fail the build, as some apps might be CSS-in-JS only or misconfigured
 }
 
 // Generate _routes.json to bypass worker for static assets
